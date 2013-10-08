@@ -20,16 +20,22 @@ namespace LinearBinaryPattern
 
         private static bool isNear(Rectangle rect1, Rectangle rect2)
         {
-            int minWidth = Math.Min(rect1.Width,rect2.Width);
-            return distance(rect1, rect2) < minWidth;
+            int maxWidth = Math.Max(rect1.Width,rect2.Width);
+            return distance(rect1, rect2)/2 < maxWidth;
+        }
+
+        private static bool isHeightTheSame(Rectangle rect1, Rectangle rect2, int deltaPercent)
+        {
+            double delta = Math.Max(rect1.Height, rect2.Height) * deltaPercent / 100;
+            return Math.Abs(rect1.Height - rect2.Height) < delta;
         }
 
         private static bool isSameNumber(Rectangle rect1, Rectangle rect2)
         {
-            return isNear(rect1, rect2);
+            return isNear(rect1, rect2) & isHeightTheSame(rect1, rect2,25);
         }
 
-        private static int[] collectNumbers(List<Rectangle> digitRects)
+        private static int[] digitsToNumbers(List<Rectangle> digitRects)
         {
             int[] digitNumbers = new int[digitRects.Count];
             for (int i = 0; i < digitRects.Count; i++)
@@ -41,8 +47,9 @@ namespace LinearBinaryPattern
             return digitNumbers;
         }
 
-        private static List<Rectangle> numbersRects(int[] digitNumbers, List<Rectangle> digitRects)
+        public static List<Rectangle> numbersRects(List<Rectangle> digitRects)
         {
+            int[] digitNumbers = digitsToNumbers(digitRects);
             // to find number of different numbers
             HashSet<int> ints = new HashSet<int>(); 
             foreach (int number in digitNumbers)
@@ -66,18 +73,6 @@ namespace LinearBinaryPattern
                     }
                 result.Add(new Rectangle(left,top,right-left,bot-top));
             }
-            return result;
-        }
-
-        public static Bitmap processBitmap(Bitmap bmp, List<Rectangle> digitRects)
-        {
-            Bitmap result = new Bitmap(bmp);
-            List<Rectangle> numberRects = numbersRects(collectNumbers(digitRects),digitRects);
-            foreach(Rectangle rect in numberRects)
-                using (Graphics g = Graphics.FromImage(result))
-                {
-                    g.DrawRectangle(new Pen(Color.Blue, 4), rect);
-                }
             return result;
         }
     }

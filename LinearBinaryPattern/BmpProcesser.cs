@@ -98,22 +98,37 @@ namespace LinearBinaryPattern
                         bmp.SetPixel(i,j,Color.FromArgb(255,0,0,0));
             return bmp;
         }
+
+        public static Bitmap renew(Bitmap bmp)
+        {
+            for (int i = 0; i < bmp.Width; i++)
+                for (int j = 0; j < bmp.Height; j++)
+                    if (bmp.GetPixel(i, j).A > 0)
+                        bmp.SetPixel(i, j, Color.Black);
+            return bmp;
+        }
+
+        public static Bitmap copyPartOfBitmap(Bitmap bmp, Rectangle cloneRect)
+        {
+            System.Drawing.Imaging.PixelFormat format = bmp.PixelFormat;
+            Bitmap result;
+            if (cloneRect.Width <= 0 || cloneRect.Height <= 0)
+                result = (Bitmap)bmp.Clone();
+            else
+                result = bmp.Clone(cloneRect, format);
+            return result;
+        }
      
-        public static Bitmap normalizeBitmap(Bitmap sourceBMP, int width, int height)
+        public static Bitmap normalizeBitmap(Bitmap bmp, int width, int height)
         {
             Bitmap result = new Bitmap(width, height);
-            Rectangle cloneRect = getBounds(sourceBMP);
-            System.Drawing.Imaging.PixelFormat format = sourceBMP.PixelFormat;
-            Bitmap cloneBitmap;
-            if (cloneRect.Width <= 0 || cloneRect.Height <= 0)
-                cloneBitmap = (Bitmap)sourceBMP.Clone();
-            else
-                cloneBitmap = sourceBMP.Clone(cloneRect, format);
+            Bitmap cloneBitmap = copyPartOfBitmap(bmp, getBounds(bmp));
             using (Graphics g = Graphics.FromImage(result))
                 g.DrawImage(cloneBitmap, 0, 0, width, height);
             return result;
         }
 
+        // need to refactor the same way as normalizeBitmap
         public static Bitmap normalizeBitmapRChannel(Bitmap sourceBMP, int width, int height)
         {
             Bitmap result = new Bitmap(width, height);
@@ -168,6 +183,7 @@ namespace LinearBinaryPattern
             //Bitmap result = GrayScale(bmp,100);
             Bitmap result = ResizeBitmap(bmp, 100, 100);
             result = normalizeBitmap(result, 100, 100);
+            result = renew(result);
             return result;
         }
         public static bool lineIsEmpty(Bitmap bmp, int x)

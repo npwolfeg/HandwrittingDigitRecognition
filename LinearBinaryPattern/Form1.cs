@@ -16,7 +16,7 @@ namespace LinearBinaryPattern
     {
         bool canDraw = false;
         Bitmap drawingBitmap, bigBitmap;
-        int drawingWidth = 5;
+        int drawingWidth = 10;
         int pointsCount = 8;
         int radius = 2;
         static int blockRows = 4;
@@ -589,7 +589,8 @@ namespace LinearBinaryPattern
 
         private void button17_Click(object sender, EventArgs e)
         {
-            List<Rectangle> rects = new List<Rectangle>();
+            List<Rectangle> digitRects = new List<Rectangle>();
+            List<Rectangle> numberRects = new List<Rectangle>();
             Rectangle rect;
             sl.loadWeights(@"weights\simple-991.txt");
             Bitmap newBigBitmap = new Bitmap(bigBitmap);
@@ -605,19 +606,8 @@ namespace LinearBinaryPattern
                             newBigBitmap.SetPixel(p.X, p.Y, Color.FromArgb(0, 0, 0, 0));
                         }
 
-                        drawingBitmap = BmpProcesser.normalizeBitmap(bmp, bmp.Width, bmp.Height);
-                        drawingBitmap = BmpProcesser.ResizeBitmap(drawingBitmap, 100, 100);
-                        drawingBitmap = BmpProcesser.FromAlphaToRGB(drawingBitmap);
-                        List<double>  dist = sl.guess(drawingBitmap);
-                        int ID1 = dist.IndexOf(dist.Min());
-
-                        drawingBitmap = BmpProcesser.normalizeBitmap(bmp, bmp.Width, bmp.Height);
-                        drawingBitmap = BmpProcesser.ResizeBitmap(drawingBitmap, 100, 100);
-                        dist = guessWide(drawingBitmap);
-                        int ID2 = dist.IndexOf(dist.Min());
-
                         rect = BmpProcesser.getBounds(bmp);
-                        rects.Add(rect);
+                        digitRects.Add(rect);
 
                         using (Graphics g = Graphics.FromImage(bigBitmap))
                         {
@@ -626,7 +616,50 @@ namespace LinearBinaryPattern
                             //g.DrawRectangle(new Pen(Color.Blue), rect);
                         }
                     }
-            bigBitmap = DigitsToNumbersLogic.processBitmap(bigBitmap, rects);
+            numberRects = DigitsToNumbersLogic.numbersRects(digitRects);
+            foreach (Rectangle numberRect in numberRects)
+            {
+                int counter = 0;
+                Bitmap numberBitmap = BmpProcesser.copyPartOfBitmap(bigBitmap, numberRect);
+                Bitmap newNumberBitmap = new Bitmap(numberBitmap);
+                for (int i = 0; i < newNumberBitmap.Width; i++)
+                    for (int j = 0; j < newNumberBitmap.Height; j++)
+                        if (newNumberBitmap.GetPixel(i, j).A != 0)
+                        {
+                            HashSet<Point> pts = BmpProcesser.getConnectedPicture(new Point(i, j), newNumberBitmap);
+                            Bitmap bmp = new Bitmap(newNumberBitmap.Width, newNumberBitmap.Height);
+                            foreach (Point p in pts)
+                            {
+                                bmp.SetPixel(p.X, p.Y, Color.Black);
+                                newNumberBitmap.SetPixel(p.X, p.Y, Color.FromArgb(0, 0, 0, 0));
+                            }
+
+                            drawingBitmap = BmpProcesser.FromAlphaToRGB(bmp);
+                            drawingBitmap = BmpProcesser.normalizeBitmapRChannel(drawingBitmap, bmp.Width, bmp.Height);
+                            drawingBitmap = BmpProcesser.ResizeBitmap(drawingBitmap, 100, 100);
+                            
+                            List<double> dist = sl.guess(drawingBitmap);
+                            int ID1 = dist.IndexOf(dist.Min());                                                       
+
+                            drawingBitmap = BmpProcesser.normalizeBitmap(bmp, bmp.Width, bmp.Height);
+                            drawingBitmap = BmpProcesser.ResizeBitmap(drawingBitmap, 100, 100);
+                            pictureBox1.Image = drawingBitmap;
+                            dist = guessWide(drawingBitmap);
+                            int ID2 = dist.IndexOf(dist.Min());
+
+                            using (Graphics g = Graphics.FromImage(bigBitmap))
+                            {
+                                g.DrawString(ID1.ToString(), new Font("Arial", 20), new SolidBrush(Color.Red), numberRect.Left+counter*20, numberRect.Top-40);
+                                g.DrawString(ID2.ToString(), new Font("Arial", 20), new SolidBrush(Color.Green), numberRect.Left + counter * 20, numberRect.Top - 60);
+                                //g.DrawRectangle(new Pen(Color.Blue), rect);
+                            }
+                            counter++;
+                        }
+                using (Graphics g = Graphics.FromImage(bigBitmap))
+                {
+                    g.DrawRectangle(new Pen(Color.Blue, 4), numberRect);
+                }
+            }
             pictureBox2.Image = bigBitmap;
         }
     }
