@@ -26,7 +26,6 @@ namespace LinearBinaryPattern
         static int picHeight = 100;
         static int blockWidth = picWidth / blockCols;
         static int blockHeight = picHeight / blockRows;
-        double[][] histograms = new double[10][];
         double[, ,][] wideHistograms = new double[10, blockCols, blockRows][];
         int[] histogramCount = new int[10];
         byte[] uniformPatterns = new byte[57];
@@ -36,13 +35,6 @@ namespace LinearBinaryPattern
         Point[] points = new Point[2];
         SimpleLearning sl = new SimpleLearning();
 
-        public void clearHistograms()
-        {
-            for (int i = 0; i < 10; i++)
-                histograms[i] = new double[300];
-            histogramCount = new int[10];
-        }
-
         public void clearWideHistograms()
         {
             for (int i = 0; i < 10; i++)
@@ -50,19 +42,6 @@ namespace LinearBinaryPattern
                     for (int y = 0; y < blockRows; y++)
                         wideHistograms[i, x, y] = new double[300];
             histogramCount = new int[10];
-        }
-
-        public void saveHistograms(string path)
-        {
-            using (StreamWriter sw = new StreamWriter(path))
-            {
-                for (int i = 0; i < 10; i++)
-                {
-                    sw.WriteLine(histogramCount[i].ToString());
-                    for (int j = 0; j < 300; j++)
-                        sw.WriteLine(histograms[i][j].ToString());
-                }
-            }
         }
 
         public void saveWideHistograms(string path)
@@ -77,19 +56,6 @@ namespace LinearBinaryPattern
                             for (int j = 0; j < 300; j++)
                                 sw.WriteLine(wideHistograms[i, x, y][j].ToString());
                         }
-            }
-        }
-
-        public void loadHistograms(string path)
-        {
-            using (StreamReader sr = new StreamReader(path))
-            {
-                for (int i = 0; i < 10; i++)
-                {
-                    histogramCount[i] = Convert.ToInt32(sr.ReadLine());
-                    for (int j = 0; j < 300; j++)
-                        histograms[i][j] = Convert.ToDouble(sr.ReadLine());
-                }
             }
         }
 
@@ -157,16 +123,6 @@ namespace LinearBinaryPattern
             return result;
         }
 
-
-
-        public void learn(Bitmap bmp, int n)
-        {
-            double[] hist = getHistogram(bmp, 1, 1, 100, 100);
-            for (int i = 0; i < 300; i++)
-                histograms[n][i] = (hist[i] + histograms[n][i] * histogramCount[n]) / (histogramCount[n] + 1);
-            histogramCount[n]++;
-        }
-
         public void learnWide(Bitmap bmp, int n)
         {
             for (int x = 0; x < blockCols; x++)
@@ -180,7 +136,7 @@ namespace LinearBinaryPattern
         }
 
         //bad
-        public void learnWideSmart(Bitmap bmp, int n)
+        /*public void learnWideSmart(Bitmap bmp, int n)
         {
             List<double> dist = guessWide(bmp);
             int ID = dist.IndexOf(dist.Min());
@@ -198,10 +154,10 @@ namespace LinearBinaryPattern
                     }
                 //histogramCount[n]++;
             }
-        }
+        }*/
 
         //bad
-        public void learnDecr(Bitmap bmp, int n)
+        /*public void learnDecr(Bitmap bmp, int n)
         {
             List<double> dist = guess(bmp);
             int ID = dist.IndexOf(dist.Min());
@@ -215,7 +171,7 @@ namespace LinearBinaryPattern
                     histograms[ID][i] = (histograms[ID][i] * histogramCount[ID] - hist[i]) / (histogramCount[ID] - 1);
                 histogramCount[ID]--;
             }
-        }
+        }*/
 
         public void learnAll(string path, int learningCount)
         {
@@ -246,16 +202,6 @@ namespace LinearBinaryPattern
             for (int i = 0; i < 300; i++)
                 sum += Math.Pow((hist1[i] - hist2[i]), 2);
             return sum;
-        }
-
-        public List<double> guess(Bitmap bmp)
-        {
-            double[] hist = getHistogram(bmp, 1, 1, 100, 100);
-            List<double> result = new List<double>();
-            for (int i = 0; i < 10; i++)
-                result.Add(Distance(hist, histograms[i]));
-            result = Vector.normalyzeVektor(result);
-            return result;
         }
 
         public List<double> guessWide(Bitmap bmp)
@@ -379,8 +325,6 @@ namespace LinearBinaryPattern
             bigBitmap = new Bitmap(pictureBox2.Width, pictureBox2.Height);
             pictureBox2.Image = bigBitmap;
             for (int i = 0; i < 10; i++)
-                histograms[i] = new double[300];
-            for (int i = 0; i < 10; i++)
                 for (int x = 0; x < blockCols; x++)
                     for (int y = 0; y < blockRows; y++)
                     {
@@ -427,15 +371,6 @@ namespace LinearBinaryPattern
             //drawingBitmap = BmpProcesser.FromAlphaToRGB(drawingBitmap);
             drawingBitmap = BmpProcesser.normalizeBitmapRChannel(drawingBitmap, 100, 100);
             pictureBox1.Image = drawingBitmap;
-        }
-
-        private void button2_Click(object sender, EventArgs e)
-        {
-            int n = Convert.ToInt32(textBox1.Text);
-            learn(drawingBitmap, n);
-            clearImg();
-            n++;
-            textBox1.Text = n.ToString();
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -506,7 +441,6 @@ namespace LinearBinaryPattern
 
         private void button12_Click(object sender, EventArgs e)
         {
-            clearHistograms();
             clearWideHistograms();
         }
 
