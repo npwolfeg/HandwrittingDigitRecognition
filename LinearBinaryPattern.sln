@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Express 2012 for Windows Desktop
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HandwrittingDigitRecognition", "LinearBinaryPattern\HandwrittingDigitRecognition.csproj", "{1960ADC2-2F32-44AB-BD64-00C52EC26016}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LinearBinaryPattern", "LinearBinaryPattern\LinearBinaryPattern.csproj", "{1960ADC2-2F32-44AB-BD64-00C52EC26016}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
