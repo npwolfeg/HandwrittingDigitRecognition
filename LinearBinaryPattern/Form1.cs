@@ -14,7 +14,6 @@ namespace LinearBinaryPattern
 {
     public partial class Form1 : Form
     {
-
         bool canDraw = false;
         Bitmap drawingBitmap, bigBitmap;
         int drawingWidth = 5;
@@ -135,44 +134,6 @@ namespace LinearBinaryPattern
             histogramCount[n]++;
         }
 
-        //bad
-        /*public void learnWideSmart(Bitmap bmp, int n)
-        {
-            List<double> dist = guessWide(bmp);
-            int ID = dist.IndexOf(dist.Min());
-            if (n != ID)
-            {
-                for (int x = 0; x < blockCols; x++)
-                    for (int y = 0; y < blockRows; y++)
-                    {
-                        double[] hist = getHistogram(bmp, blockWidth * x, blockHeight * y, blockWidth, blockHeight);
-                        for (int i = 0; i < 300; i++)
-                        {
-                            wideHistograms[n, x, y][i] += hist[i];
-                            wideHistograms[ID, x, y][i] -= hist[i];
-                        }
-                    }
-                //histogramCount[n]++;
-            }
-        }*/
-
-        //bad
-        /*public void learnDecr(Bitmap bmp, int n)
-        {
-            List<double> dist = guess(bmp);
-            int ID = dist.IndexOf(dist.Min());
-            if (ID != n)
-            {
-                double[] hist = getHistogram(bmp, 1, 1, 100, 100);
-                for (int i = 0; i < 300; i++)
-                    histograms[n][i] = (hist[i] + histograms[n][i] * histogramCount[n]) / (histogramCount[n] + 1);
-                histogramCount[n]++;
-                for (int i = 0; i < 300; i++)
-                    histograms[ID][i] = (histograms[ID][i] * histogramCount[ID] - hist[i]) / (histogramCount[ID] - 1);
-                histogramCount[ID]--;
-            }
-        }*/
-
         public void learnAll(string path, int learningCount)
         {
             Bitmap bmp;
@@ -189,8 +150,7 @@ namespace LinearBinaryPattern
                 {
                     progressBar1.Value++;
                     bmp = new Bitmap(path + k.ToString() + n.ToString() + ".bmp");
-                    bmp = BmpProcesser.normalizeBitmap(bmp, 100, 100);
-                    //learn(k);                    
+                    bmp = BmpProcesser.normalizeBitmap(bmp, 100, 100);               
                     learnWide(bmp, k);
                 }
             }
@@ -629,6 +589,8 @@ namespace LinearBinaryPattern
 
         private void button17_Click(object sender, EventArgs e)
         {
+            List<Rectangle> rects = new List<Rectangle>();
+            Rectangle rect;
             sl.loadWeights(@"weights\simple-991.txt");
             Bitmap newBigBitmap = new Bitmap(bigBitmap);
             for (int i = 0; i < newBigBitmap.Width; i++)
@@ -654,12 +616,17 @@ namespace LinearBinaryPattern
                         dist = guessWide(drawingBitmap);
                         int ID2 = dist.IndexOf(dist.Min());
 
+                        rect = BmpProcesser.getBounds(bmp);
+                        rects.Add(rect);
+
                         using (Graphics g = Graphics.FromImage(bigBitmap))
                         {
-                            g.DrawString(ID1.ToString(), new Font("Arial", 20), new SolidBrush(Color.Red), i - 20, j - 40);
-                            g.DrawString(ID2.ToString(), new Font("Arial", 20), new SolidBrush(Color.Green), i - 20, j - 60);
+                            //g.DrawString(ID1.ToString(), new Font("Arial", 20), new SolidBrush(Color.Red), i - 20, j - 40);
+                            //g.DrawString(ID2.ToString(), new Font("Arial", 20), new SolidBrush(Color.Green), i - 20, j - 60);
+                            //g.DrawRectangle(new Pen(Color.Blue), rect);
                         }
                     }
+            bigBitmap = DigitsToNumbersLogic.processBitmap(bigBitmap, rects);
             pictureBox2.Image = bigBitmap;
         }
     }

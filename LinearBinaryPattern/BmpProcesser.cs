@@ -9,7 +9,7 @@ namespace LinearBinaryPattern
 {
     class BmpProcesser
     {
-        private static int[] getBounds(Bitmap sourceBMP)
+        public static Rectangle getBounds(Bitmap sourceBMP)
         {
             int[] result = new int[4];
             result[0] = sourceBMP.Width;
@@ -31,7 +31,8 @@ namespace LinearBinaryPattern
                             result[3] = j;
                     }
                 }
-            return result;
+            Rectangle rect = new Rectangle(result[0], result[2], result[1] - result[0], result[3] - result[2]);
+            return rect;
         }
 
         public static HashSet<Point> getConnectedPicture(Point e, Bitmap bmpSource)
@@ -101,8 +102,7 @@ namespace LinearBinaryPattern
         public static Bitmap normalizeBitmap(Bitmap sourceBMP, int width, int height)
         {
             Bitmap result = new Bitmap(width, height);
-            int[] bounds = getBounds(sourceBMP);
-            Rectangle cloneRect = new Rectangle(bounds[0], bounds[2], bounds[1] - bounds[0], bounds[3] - bounds[2]);
+            Rectangle cloneRect = getBounds(sourceBMP);
             System.Drawing.Imaging.PixelFormat format = sourceBMP.PixelFormat;
             Bitmap cloneBitmap;
             if (cloneRect.Width <= 0 || cloneRect.Height <= 0)

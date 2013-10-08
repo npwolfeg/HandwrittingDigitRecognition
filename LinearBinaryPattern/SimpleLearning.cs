@@ -197,7 +197,5 @@ namespace LinearBinaryPattern
 
             finished = true;
         }
-
-
     }
 }
