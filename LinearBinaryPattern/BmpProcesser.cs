@@ -34,6 +34,36 @@ namespace LinearBinaryPattern
             return result;
         }
 
+        public static HashSet<Point> getConnectedPicture(Point e, Bitmap bmpSource)
+        {
+            Color c = bmpSource.GetPixel(e.X, e.Y);
+            Bitmap bmp = new Bitmap(bmpSource.Width, bmpSource.Height);
+            HashSet<Point> pts = new HashSet<Point>();
+            HashSet<Point> result = new HashSet<Point>();
+            pts.Add(e);
+            result.Add(e);
+            while (pts.Count > 0)
+            {
+                Point p = pts.First();
+                int x = p.X;
+                int y = p.Y;
+                bmp.SetPixel(x, y, c);
+                for (int i = -1; i < 2; i++)
+                    for (int j = -1; j < 2; j++)
+                    {
+                        int a = x + i;
+                        int b = y + j;
+                        if (a > -1 && a < bmp.Width && b > -1 && b < bmp.Height && bmpSource.GetPixel(a, b) == c && bmp.GetPixel(a, b) != c)
+                        {
+                            pts.Add(new Point(a, b));
+                            result.Add(new Point(a, b));
+                        }
+                    }
+                pts.Remove(p);
+            }
+            return result;
+        }
+
         private static int[] getBoundsRChannel(Bitmap sourceBMP)
         {
             int[] result = new int[4];
@@ -44,7 +74,7 @@ namespace LinearBinaryPattern
             for (int i = 0; i < sourceBMP.Width; i++)
                 for (int j = 0; j < sourceBMP.Height; j++)
                 {
-                    if (sourceBMP.GetPixel(i, j).R == 0)
+                    if (sourceBMP.GetPixel(i, j).R < 255)
                     {
                         if (i < result[0])
                             result[0] = i;
@@ -57,6 +87,15 @@ namespace LinearBinaryPattern
                     }
                 }
             return result;
+        }
+
+        public static Bitmap renewRChannel(Bitmap bmp)
+        {
+            for (int i = 0; i < bmp.Width; i++)
+                for (int j = 0; j < bmp.Height; j++)
+                    if (bmp.GetPixel(i, j).R < 255)
+                        bmp.SetPixel(i,j,Color.FromArgb(255,0,0,0));
+            return bmp;
         }
      
         public static Bitmap normalizeBitmap(Bitmap sourceBMP, int width, int height)

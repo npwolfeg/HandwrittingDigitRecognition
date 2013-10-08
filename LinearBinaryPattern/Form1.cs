@@ -16,7 +16,7 @@ namespace LinearBinaryPattern
     {
 
         bool canDraw = false;
-        Bitmap drawingBitmap,bigBitmap;
+        Bitmap drawingBitmap, bigBitmap;
         int drawingWidth = 10;
         int pointsCount = 8;
         int radius = 2;
@@ -24,16 +24,17 @@ namespace LinearBinaryPattern
         static int blockCols = 4;
         static int picWidth = 100;
         static int picHeight = 100;
-        static int blockWidth = picWidth/blockCols;
-        static int blockHeight = picHeight/blockRows;
+        static int blockWidth = picWidth / blockCols;
+        static int blockHeight = picHeight / blockRows;
         double[][] histograms = new double[10][];
-        double[,,][] wideHistograms = new double[10,blockCols,blockRows][];
+        double[, ,][] wideHistograms = new double[10, blockCols, blockRows][];
         int[] histogramCount = new int[10];
         byte[] uniformPatterns = new byte[57];
         int[] count = new int[10];
         //string path = @"F:\C#\MNIST Reader\MNIST Reader\bin\Debug\";
         string path = @"F:\C#\NumberPicturesSaver\NumberPicturesSaver\bin\Debug\";
         Point[] points = new Point[2];
+        SimpleLearning sl = new SimpleLearning();
 
         public void clearHistograms()
         {
@@ -132,10 +133,10 @@ namespace LinearBinaryPattern
         {
             int sum = 0;
             if (x > 0 && x < 99 && y > 0 && y < 99)
-            {                
+            {
                 int power = 0;
-                for(int i=-1;i<2;i++)
-                    for(int j=-1;j<2;j++)
+                for (int i = -1; i < 2; i++)
+                    for (int j = -1; j < 2; j++)
                         if (i != 0 || j != 0)
                         {
                             if (bmp.GetPixel(x + i, y + j).A >= bmp.GetPixel(x, y).A)
@@ -151,8 +152,8 @@ namespace LinearBinaryPattern
             double[] result = new double[300];
             for (int i = x; i < width + x; i++)
                 for (int j = y; j < height + y; j++)
-                    result[analyzePixel(bmp,i, j)]++;
-            result =Vector.normalyzeVektor(result);
+                    result[analyzePixel(bmp, i, j)]++;
+            result = Vector.normalyzeVektor(result);
             return result;
         }
 
@@ -160,20 +161,20 @@ namespace LinearBinaryPattern
 
         public void learn(Bitmap bmp, int n)
         {
-            double[] hist = getHistogram(bmp,1, 1, 100, 100);
-            for (int i=0;i<300;i++)
-            histograms[n][i] = (hist[i]+histograms[n][i]*histogramCount[n])/(histogramCount[n]+1);
-            histogramCount[n]++;            
+            double[] hist = getHistogram(bmp, 1, 1, 100, 100);
+            for (int i = 0; i < 300; i++)
+                histograms[n][i] = (hist[i] + histograms[n][i] * histogramCount[n]) / (histogramCount[n] + 1);
+            histogramCount[n]++;
         }
 
         public void learnWide(Bitmap bmp, int n)
         {
-            for(int x=0;x<blockCols;x++)
+            for (int x = 0; x < blockCols; x++)
                 for (int y = 0; y < blockRows; y++)
                 {
-                    double[] hist = getHistogram(bmp,blockWidth * x, blockHeight * y, blockWidth, blockHeight);
+                    double[] hist = getHistogram(bmp, blockWidth * x, blockHeight * y, blockWidth, blockHeight);
                     for (int i = 0; i < 300; i++)
-                        wideHistograms[n, x, y][i] = (hist[i] + wideHistograms[n, x, y][i] * histogramCount[n]) / (histogramCount[n] + 1);              
+                        wideHistograms[n, x, y][i] = (hist[i] + wideHistograms[n, x, y][i] * histogramCount[n]) / (histogramCount[n] + 1);
                 }
             histogramCount[n]++;
         }
@@ -209,7 +210,7 @@ namespace LinearBinaryPattern
                 double[] hist = getHistogram(bmp, 1, 1, 100, 100);
                 for (int i = 0; i < 300; i++)
                     histograms[n][i] = (hist[i] + histograms[n][i] * histogramCount[n]) / (histogramCount[n] + 1);
-                histogramCount[n]++;            
+                histogramCount[n]++;
                 for (int i = 0; i < 300; i++)
                     histograms[ID][i] = (histograms[ID][i] * histogramCount[ID] - hist[i]) / (histogramCount[ID] - 1);
                 histogramCount[ID]--;
@@ -224,7 +225,7 @@ namespace LinearBinaryPattern
                 for (int i = 0; i < 10; i++)
                     count[i] = Convert.ToInt32(sr.ReadLine());
             }
-            progressBar1.Maximum = learningCount*10;
+            progressBar1.Maximum = learningCount * 10;
             progressBar1.Value = 0;
             for (int k = 0; k < 10; k++)
             {
@@ -258,7 +259,7 @@ namespace LinearBinaryPattern
         }
 
         public List<double> guessWide(Bitmap bmp)
-        {            
+        {
             double[,][] hist = new double[blockCols, blockRows][];
             List<double> result = new List<double>();
             for (int x = 0; x < blockCols; x++)
@@ -279,7 +280,7 @@ namespace LinearBinaryPattern
             return result;
         }
 
-        public int guessWithAutoGrayScale(Bitmap bmp,int step)
+        public int guessWithAutoGrayScale(Bitmap bmp, int step)
         {
             listBox1.Items.Clear();
             double min = 100;
@@ -350,7 +351,7 @@ namespace LinearBinaryPattern
             }
             progressBar1.Maximum = 1000;
             progressBar1.Value = 0;
-            for (int n = 0; n < 0+guessingCount; n++)
+            for (int n = 0; n < 0 + guessingCount; n++)
             {
                 for (int k = 0; k < 10; k++)
                 {
@@ -375,12 +376,12 @@ namespace LinearBinaryPattern
             InitializeComponent();
             drawingBitmap = new Bitmap(100, 100);
             pictureBox1.Image = drawingBitmap;
-            bigBitmap = new Bitmap(pictureBox2.Width,pictureBox2.Height);
+            bigBitmap = new Bitmap(pictureBox2.Width, pictureBox2.Height);
             pictureBox2.Image = bigBitmap;
             for (int i = 0; i < 10; i++)
-                histograms[i] = new double[300];            
+                histograms[i] = new double[300];
             for (int i = 0; i < 10; i++)
-                for(int x=0;x<blockCols;x++)
+                for (int x = 0; x < blockCols; x++)
                     for (int y = 0; y < blockRows; y++)
                     {
                         wideHistograms[i, x, y] = new double[300];
@@ -390,7 +391,7 @@ namespace LinearBinaryPattern
 
         private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
         {
-            canDraw = true;            
+            canDraw = true;
         }
 
         private void pictureBox1_MouseUp(object sender, MouseEventArgs e)
@@ -436,7 +437,7 @@ namespace LinearBinaryPattern
             n++;
             textBox1.Text = n.ToString();
         }
-        
+
         private void button3_Click(object sender, EventArgs e)
         {
             drawingBitmap = BmpProcesser.preprocessBitmap(drawingBitmap);
@@ -476,7 +477,7 @@ namespace LinearBinaryPattern
             if (of.ShowDialog() == DialogResult.OK)
             {
                 loadWideHistograms(of.FileName);
-            }            
+            }
         }
 
         private void button10_Click(object sender, EventArgs e)
@@ -484,16 +485,16 @@ namespace LinearBinaryPattern
             clearWideHistograms();
             learnAll(path, 1000);
         }
-                
+
         private void button11_Click(object sender, EventArgs e)
-        {           
+        {
             listBox1.Items.Clear();
-            int[,] rightNwrong = guessAll(100);         
+            int[,] rightNwrong = guessAll(100);
             int sum = 0;
             for (int i = 0; i < 10; i++)
             {
-                listBox1.Items.Add(i.ToString() + " " + rightNwrong[i, 0].ToString() + " " + rightNwrong[i,1].ToString());
-                sum += rightNwrong[i,0];
+                listBox1.Items.Add(i.ToString() + " " + rightNwrong[i, 0].ToString() + " " + rightNwrong[i, 1].ToString());
+                sum += rightNwrong[i, 0];
             }
             listBox1.Items.Add(sum);
         }
@@ -523,17 +524,42 @@ namespace LinearBinaryPattern
             listBox1.Items.Add(guessWithAutoGrayScale(drawingBitmap, 10));
             DateTime date2 = DateTime.Now;
             TimeSpan ts = date2 - date1;
-            textBox1.Text = (ts.Seconds*1000+ts.Milliseconds).ToString();
+            textBox1.Text = (ts.Seconds * 1000 + ts.Milliseconds).ToString();
         }
 
         private void pictureBox2_MouseDown(object sender, MouseEventArgs e)
         {
-            canDraw = true;
+            if (checkBox1.Checked) canDraw = true;
+            else
+            {
+                HashSet<Point> pts = BmpProcesser.getConnectedPicture(e.Location, bigBitmap);
+                Bitmap bmp = new Bitmap(bigBitmap.Width, bigBitmap.Height);
+                foreach (Point p in pts)
+                {
+                    bmp.SetPixel(p.X, p.Y, Color.Black);
+                    bigBitmap.SetPixel(p.X, p.Y, Color.FromArgb(0,0,0,0));
+                }
+                pictureBox2.Image = bigBitmap;
+                drawingBitmap = BmpProcesser.ResizeBitmap(bmp, 100, 100);
+                drawingBitmap = BmpProcesser.normalizeBitmap(drawingBitmap, 100, 100);
+                listBox1.Items.Clear();
+                pictureBox1.Image = drawingBitmap;
+                List<double> dist = guessWide(drawingBitmap);
+                int ID;
+                for (int i = 0; i < 10; i++)
+                {
+                    ID = dist.IndexOf(dist.Min());
+                    listBox1.Items.Add(ID.ToString() + ' ' + dist[ID].ToString());
+                    dist[ID] = 100000;
+                }
+            }
+
         }
 
         private void pictureBox2_MouseUp(object sender, MouseEventArgs e)
         {
             canDraw = false;
+
         }
 
         private void pictureBox2_MouseMove(object sender, MouseEventArgs e)
@@ -547,23 +573,23 @@ namespace LinearBinaryPattern
                 pictureBox2.Refresh();
             }
         }
-        
+
         private void button8_Click(object sender, EventArgs e)
         {
             int step = 1;
-            int left = 0,right = 0;
+            int left = 0, right = 0;
             listBox1.Items.Clear();
             textBox2.Text = "";
-            double min1=100, min2;
-            int ID1=0, ID2;
+            double min1 = 100, min2;
+            int ID1 = 0, ID2;
             progressBar1.Value = 0;
             progressBar1.Maximum = bigBitmap.Width;
 
-            int x=0;
+            int x = 0;
             while (x < bigBitmap.Width)
             {
                 //set up left
-                while (x<bigBitmap.Width && BmpProcesser.lineIsEmpty(bigBitmap, x))
+                while (x < bigBitmap.Width && BmpProcesser.lineIsEmpty(bigBitmap, x))
                     x += step;
                 if (x < bigBitmap.Width)
                 {
@@ -585,14 +611,14 @@ namespace LinearBinaryPattern
                         using (Graphics g = Graphics.FromImage(bigBitmap))
                         {
                             g.DrawLine(new Pen(Color.Red), new Point(left, 0), new Point(left, bigBitmap.Height));
-                            g.DrawLine(new Pen(Color.Red), new Point(right-1, 0), new Point(right-1, bigBitmap.Height));
+                            g.DrawLine(new Pen(Color.Red), new Point(right - 1, 0), new Point(right - 1, bigBitmap.Height));
                             g.DrawString(ID1.ToString(), Form1.DefaultFont, new SolidBrush(Color.Black), left, 0);
                             pictureBox2.Refresh();
                         }
 
                     }
-                }               
-                
+                }
+
             }
 
             // min = f(i) optimization lical mins
@@ -633,10 +659,9 @@ namespace LinearBinaryPattern
         private void button9_Click(object sender, EventArgs e)
         {
             listBox1.Items.Clear();
-            SimpleLearning sl = new SimpleLearning();
-            Thread oThread = new Thread(sl.learnAll);         
-            // Start the thread
+            Thread oThread = new Thread(sl.learnAll);
             oThread.Start(Convert.ToInt32(textBox1.Text));
+
             //time for sl to initialize maxProgress
             Thread.Sleep(50);
 
@@ -646,7 +671,6 @@ namespace LinearBinaryPattern
             {
                 Thread.Sleep(100);
                 progressBar1.Value = sl.progress;
-                //listBox1.Items.Add(sl.delta);
             }
             SaveFileDialog sf = new SaveFileDialog();
             if (sf.ShowDialog() == DialogResult.OK)
@@ -657,14 +681,12 @@ namespace LinearBinaryPattern
 
         private void button14_Click(object sender, EventArgs e)
         {
-            SimpleLearning sl = new SimpleLearning();
             bigBitmap = sl.visualize();
             pictureBox2.Image = bigBitmap;
         }
 
         private void button15_Click(object sender, EventArgs e)
         {
-            SimpleLearning sl = new SimpleLearning();
             sl.loadWeights();
             int[,] rightNwrong = sl.guessAll(Convert.ToInt32(textBox1.Text));
             listBox1.Items.Clear();
@@ -679,13 +701,13 @@ namespace LinearBinaryPattern
 
         private void button16_Click(object sender, EventArgs e)
         {
-            SimpleLearning sl = new SimpleLearning();
-            sl.loadWeights("simpleLearning.txt");
-            drawingBitmap = BmpProcesser.normalizeBitmap(drawingBitmap,100,100);
+            sl.loadWeights(@"weights\simple-991.txt");
+            drawingBitmap = BmpProcesser.FromAlphaToRGB(drawingBitmap);
+            drawingBitmap = BmpProcesser.normalizeBitmapRChannel(drawingBitmap, 100, 100);
             listBox1.Items.Clear();
             pictureBox1.Image = drawingBitmap;
             //List<double> dist = guess();
-            List<double> dist =sl.guess(drawingBitmap);
+            List<double> dist = sl.guess(drawingBitmap);
             int ID;
             for (int i = 0; i < 10; i++)
             {
@@ -695,11 +717,37 @@ namespace LinearBinaryPattern
             }
         }
 
-        private void pictureBox2_Click(object sender, EventArgs e)
+        private void button17_Click(object sender, EventArgs e)
         {
-
-            
+            sl.loadWeights(@"weights\simple-991.txt");
+            Bitmap oldBigBitmap = new Bitmap(bigBitmap);
+            for (int i = 0; i < bigBitmap.Width; i++)
+                for (int j = 0; j < bigBitmap.Height; j++)
+                    if (bigBitmap.GetPixel(i, j).A != 0)
+                    {
+                        HashSet<Point> pts = BmpProcesser.getConnectedPicture(new Point(i, j), bigBitmap);
+                        Bitmap bmp = new Bitmap(bigBitmap.Width, bigBitmap.Height);
+                        foreach (Point p in pts)
+                        {
+                            bmp.SetPixel(p.X, p.Y, Color.Black);
+                            bigBitmap.SetPixel(p.X, p.Y, Color.FromArgb(0, 0, 0, 0));
+                        }
+                        pictureBox2.Image = bigBitmap;
+                        drawingBitmap = BmpProcesser.ResizeBitmap(bmp, 100, 100);
+                        drawingBitmap = BmpProcesser.normalizeBitmap(drawingBitmap, 100, 100);
+                        drawingBitmap = BmpProcesser.FromAlphaToRGB(drawingBitmap);
+                        listBox1.Items.Clear();
+                        pictureBox1.Image = drawingBitmap;
+                        List<double> dist = sl.guess(drawingBitmap);
+                        int ID = dist.IndexOf(dist.Min());
+                        using (Graphics g = Graphics.FromImage(oldBigBitmap))
+                        {
+                            g.DrawString(ID.ToString(), new Font("Arial", 20), new SolidBrush(Color.Blue), i-20, j-20);
+                        }
+                    }
+            pictureBox2.Image = oldBigBitmap;
         }
-
     }
+
 }
+
