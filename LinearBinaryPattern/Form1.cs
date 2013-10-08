@@ -17,7 +17,7 @@ namespace LinearBinaryPattern
 
         bool canDraw = false;
         Bitmap drawingBitmap, bigBitmap;
-        int drawingWidth = 10;
+        int drawingWidth = 5;
         int pointsCount = 8;
         int radius = 2;
         static int blockRows = 4;
@@ -529,31 +529,7 @@ namespace LinearBinaryPattern
 
         private void pictureBox2_MouseDown(object sender, MouseEventArgs e)
         {
-            if (checkBox1.Checked) canDraw = true;
-            else
-            {
-                HashSet<Point> pts = BmpProcesser.getConnectedPicture(e.Location, bigBitmap);
-                Bitmap bmp = new Bitmap(bigBitmap.Width, bigBitmap.Height);
-                foreach (Point p in pts)
-                {
-                    bmp.SetPixel(p.X, p.Y, Color.Black);
-                    bigBitmap.SetPixel(p.X, p.Y, Color.FromArgb(0,0,0,0));
-                }
-                pictureBox2.Image = bigBitmap;
-                drawingBitmap = BmpProcesser.ResizeBitmap(bmp, 100, 100);
-                drawingBitmap = BmpProcesser.normalizeBitmap(drawingBitmap, 100, 100);
-                listBox1.Items.Clear();
-                pictureBox1.Image = drawingBitmap;
-                List<double> dist = guessWide(drawingBitmap);
-                int ID;
-                for (int i = 0; i < 10; i++)
-                {
-                    ID = dist.IndexOf(dist.Min());
-                    listBox1.Items.Add(ID.ToString() + ' ' + dist[ID].ToString());
-                    dist[ID] = 100000;
-                }
-            }
-
+            canDraw = true;
         }
 
         private void pictureBox2_MouseUp(object sender, MouseEventArgs e)
@@ -720,32 +696,37 @@ namespace LinearBinaryPattern
         private void button17_Click(object sender, EventArgs e)
         {
             sl.loadWeights(@"weights\simple-991.txt");
-            Bitmap oldBigBitmap = new Bitmap(bigBitmap);
-            for (int i = 0; i < bigBitmap.Width; i++)
-                for (int j = 0; j < bigBitmap.Height; j++)
-                    if (bigBitmap.GetPixel(i, j).A != 0)
+            Bitmap newBigBitmap = new Bitmap(bigBitmap);
+            for (int i = 0; i < newBigBitmap.Width; i++)
+                for (int j = 0; j < newBigBitmap.Height; j++)
+                    if (newBigBitmap.GetPixel(i, j).A != 0)
                     {
-                        HashSet<Point> pts = BmpProcesser.getConnectedPicture(new Point(i, j), bigBitmap);
-                        Bitmap bmp = new Bitmap(bigBitmap.Width, bigBitmap.Height);
+                        HashSet<Point> pts = BmpProcesser.getConnectedPicture(new Point(i, j), newBigBitmap);
+                        Bitmap bmp = new Bitmap(newBigBitmap.Width, newBigBitmap.Height);
                         foreach (Point p in pts)
                         {
                             bmp.SetPixel(p.X, p.Y, Color.Black);
-                            bigBitmap.SetPixel(p.X, p.Y, Color.FromArgb(0, 0, 0, 0));
+                            newBigBitmap.SetPixel(p.X, p.Y, Color.FromArgb(0, 0, 0, 0));
                         }
-                        pictureBox2.Image = bigBitmap;
-                        drawingBitmap = BmpProcesser.ResizeBitmap(bmp, 100, 100);
-                        drawingBitmap = BmpProcesser.normalizeBitmap(drawingBitmap, 100, 100);
+
+                        drawingBitmap = BmpProcesser.normalizeBitmap(bmp, bmp.Width, bmp.Height);
+                        drawingBitmap = BmpProcesser.ResizeBitmap(drawingBitmap, 100, 100);
                         drawingBitmap = BmpProcesser.FromAlphaToRGB(drawingBitmap);
-                        listBox1.Items.Clear();
-                        pictureBox1.Image = drawingBitmap;
-                        List<double> dist = sl.guess(drawingBitmap);
-                        int ID = dist.IndexOf(dist.Min());
-                        using (Graphics g = Graphics.FromImage(oldBigBitmap))
+                        List<double>  dist = sl.guess(drawingBitmap);
+                        int ID1 = dist.IndexOf(dist.Min());
+
+                        drawingBitmap = BmpProcesser.normalizeBitmap(bmp, bmp.Width, bmp.Height);
+                        drawingBitmap = BmpProcesser.ResizeBitmap(drawingBitmap, 100, 100);
+                        dist = guessWide(drawingBitmap);
+                        int ID2 = dist.IndexOf(dist.Min());
+
+                        using (Graphics g = Graphics.FromImage(bigBitmap))
                         {
-                            g.DrawString(ID.ToString(), new Font("Arial", 20), new SolidBrush(Color.Blue), i-20, j-20);
+                            g.DrawString(ID1.ToString(), new Font("Arial", 20), new SolidBrush(Color.Red), i - 20, j - 40);
+                            g.DrawString(ID2.ToString(), new Font("Arial", 20), new SolidBrush(Color.Green), i - 20, j - 60);
                         }
                     }
-            pictureBox2.Image = oldBigBitmap;
+            pictureBox2.Image = bigBitmap;
         }
     }
 
