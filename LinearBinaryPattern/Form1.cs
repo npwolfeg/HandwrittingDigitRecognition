@@ -632,39 +632,23 @@ namespace LinearBinaryPattern
                         possibleDigits.Add(dist.IndexOf(dist.Min()));
                         digits.Add(new HandwrittenDigit(rect,pts,possibleDigits));
                     }
-            newBigBitmap = new Bitmap(bigBitmap);
-            List<Rectangle>  numberRects = DigitsToNumbersLogic.numbersRects(digits);
-            foreach (Rectangle numberRect in numberRects)
+
+            List<List<int>> numbers = DigitsToNumbersLogic.digitsToNumbers(digits);
+            foreach (List<int> number in numbers)
             {
                 int counter = 0;
-                //Bitmap numberBitmap = BmpProcesser.copyPartOfBitmap(bigBitmap, numberRect);
-                //Bitmap newNumberBitmap = new Bitmap(numberBitmap);
-                for (int i = 0; i < numberRect.Width; i++)
-                    for (int j = 0; j < numberRect.Height; j++)
-                        if (newBigBitmap.GetPixel(i + numberRect.Left, j + numberRect.Top).A > 0)
-                        {
-                            HandwrittenDigit currentDigit = new HandwrittenDigit();
-
-                            foreach (HandwrittenDigit digit in digits)
-                                if (digit.points.Contains(new Point(i+numberRect.Left, j+numberRect.Top)))
-                                    currentDigit = digit;
-                            if (numberRect.Contains(currentDigit.bounds))
-                            {
-                                foreach (Point p in currentDigit.points)
-                                    newBigBitmap.SetPixel(p.X, p.Y, Color.FromArgb(0, 0, 0, 0));
-                                using (Graphics g = Graphics.FromImage(bigBitmap))
-                                {
-                                    g.DrawString(currentDigit.possiebleDigits[0].ToString(), new Font("Arial", 20), new SolidBrush(Color.Red), numberRect.Left + counter * 20, numberRect.Top - 30);
-                                    g.DrawString(currentDigit.possiebleDigits[1].ToString(), new Font("Arial", 20), new SolidBrush(Color.Orange), numberRect.Left + counter * 20, numberRect.Top - 50);
-                                    g.DrawString(currentDigit.possiebleDigits[2].ToString(), new Font("Arial", 20), new SolidBrush(Color.Green), numberRect.Left + counter * 20, numberRect.Top - 70);
-                                    g.DrawRectangle(new Pen(Color.Orange,4), currentDigit.bounds);
-                                }
-                                counter++;
-                            }                            
-                        }
-                using (Graphics g = Graphics.FromImage(bigBitmap))
+                int left = digits[number[0]].bounds.Left;
+                int top = digits[number[0]].bounds.Top;
+                foreach (int digit in number)
                 {
-                    g.DrawRectangle(new Pen(Color.Blue, 4), numberRect);
+                    using (Graphics g = Graphics.FromImage(bigBitmap))
+                    {
+                        g.DrawString(digits[digit].possiebleDigits[0].ToString(), new Font("Arial", 20), new SolidBrush(Color.Red), left + counter * 20, top - 30);
+                        g.DrawString(digits[digit].possiebleDigits[1].ToString(), new Font("Arial", 20), new SolidBrush(Color.Orange), left + counter * 20, top - 50);
+                        g.DrawString(digits[digit].possiebleDigits[2].ToString(), new Font("Arial", 20), new SolidBrush(Color.Green), left + counter * 20, top - 70);
+                        //g.DrawRectangle(new Pen(Color.Orange, 4), currentDigit.bounds);
+                    }
+                    counter++;
                 }
             }
             pictureBox2.Image = bigBitmap;

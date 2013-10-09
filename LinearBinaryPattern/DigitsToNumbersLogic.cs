@@ -41,52 +41,35 @@ namespace LinearBinaryPattern
             return isNear(rect1, rect2) & isHeightTheSame(rect1, rect2, 25) & isOnTheSameLine(rect1, rect2, 25);
         }
 
-        private static int[] digitsToNumbers(List<Rectangle> digitRects)
+        public static List<List<int>> digitsToNumbers(List<HandwrittenDigit> digits)
         {
+            List<Rectangle> digitRects = new List<Rectangle>();
+            foreach (HandwrittenDigit digit in digits)
+                digitRects.Add(digit.bounds);
+            return digitsToNumbers(digitRects);
+        }
+
+        private static List<List<int>> digitsToNumbers(List<Rectangle> digitRects)
+        {
+
             int[] digitNumbers = new int[digitRects.Count];
             for (int i = 0; i < digitRects.Count; i++)
                 digitNumbers[i] = i;
             for (int i = 0; i < digitRects.Count - 1; i++)
                 for (int j = i + 1; j < digitRects.Count; j++)
                     if (isSameNumber(digitRects[i], digitRects[j]))
-                        digitNumbers[j] = digitNumbers[i];
-            return digitNumbers;
-        }
+                        digitNumbers[j] = digitNumbers[i];               //now each digit in digitNumbers contains number of its number oO
 
-        public static List<Rectangle> numbersRects(List<HandwrittenDigit> digits)
-        {
-            List<Rectangle> digitRects = new List<Rectangle>();
-            foreach(HandwrittenDigit digit in digits)
-                digitRects.Add(digit.bounds);
-            return numbersRects(digitRects);
-        }
-
-        public static List<Rectangle> numbersRects(List<Rectangle> digitRects)
-        {
-            int[] digitNumbers = digitsToNumbers(digitRects);
-            // to find number of different numbers
-            HashSet<int> ints = new HashSet<int>(); 
+            HashSet<int> numbers = new HashSet<int>();
             foreach (int number in digitNumbers)
-                ints.Add(number);
-            int count = ints.Count;
-            /////////////////////////////////////
-            List<Rectangle> result = new List<Rectangle>();
-            foreach (int number in ints)
-            {
-                int left = 100000;
-                int right = 0;
-                int top = 1000000;
-                int bot = 0;
-                for(int i=0;i<digitNumbers.Length;i++)
-                    if (digitNumbers[i] == number)
-                    {
-                        if (digitRects[i].Left < left) left = digitRects[i].Left;
-                        if (digitRects[i].Right > right) right = digitRects[i].Right;
-                        if (digitRects[i].Top < top) top = digitRects[i].Top;
-                        if (digitRects[i].Bottom > bot) bot = digitRects[i].Bottom;
-                    }
-                result.Add(new Rectangle(left,top,right-left,bot-top));
-            }
+                numbers.Add(number);                                     //set of DIFFERENT numbers
+
+            List<List<int>> result = new List<List<int>>();
+            foreach (int number in numbers)
+                result.Add(new List<int>());
+            for (int i = 0; i < digitNumbers.Length; i++)
+                result[digitNumbers[i]].Add(i);                          //list of numbers. each number has a list of its digits
+
             return result;
         }
     }
