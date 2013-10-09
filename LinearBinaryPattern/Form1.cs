@@ -16,7 +16,7 @@ namespace LinearBinaryPattern
     {
         bool canDraw = false;
         Bitmap drawingBitmap, bigBitmap;
-        int drawingWidth = 10;
+        int drawingWidth = 8;
         int pointsCount = 8;
         int radius = 2;
         static int blockRows = 4;
@@ -589,20 +589,22 @@ namespace LinearBinaryPattern
 
         private void button17_Click(object sender, EventArgs e)
         {
+            //find digits in the bitmap
+            progressBar1.Value = 0;
+            progressBar1.Maximum = bigBitmap.Width * bigBitmap.Height;
             List<HandwrittenDigit> digits = new List<HandwrittenDigit>();
-            /*List<Rectangle> digitRects = new List<Rectangle>();
-            List<Rectangle> numberRects = new List<Rectangle>();
-            List<HashSet<Point>> digitPointSets = new List<HashSet<Point>>();*/
             Rectangle rect;
             HashSet<Point> pts;
             List<int> possibleDigits;
             Bitmap newBigBitmap = new Bitmap(bigBitmap);
             for (int i = 0; i < newBigBitmap.Width; i++)
                 for (int j = 0; j < newBigBitmap.Height; j++)
+                {
+                    progressBar1.Value++;
                     if (newBigBitmap.GetPixel(i, j).A != 0)
                     {
                         pts = BmpProcesser.getConnectedPicture(new Point(i, j), newBigBitmap);
-                        
+
                         Bitmap bmp = new Bitmap(newBigBitmap.Width, newBigBitmap.Height);
                         foreach (Point p in pts)
                         {
@@ -610,6 +612,7 @@ namespace LinearBinaryPattern
                             newBigBitmap.SetPixel(p.X, p.Y, Color.FromArgb(0, 0, 0, 0));
                         }
                         rect = BmpProcesser.getBounds(bmp);
+                        bmp = BmpProcesser.copyPartOfBitmap(bmp, rect);
 
                         possibleDigits = new List<int>();
 
@@ -630,9 +633,10 @@ namespace LinearBinaryPattern
                         pictureBox1.Image = drawingBitmap;
                         dist = guessWide(drawingBitmap);
                         possibleDigits.Add(dist.IndexOf(dist.Min()));
-                        digits.Add(new HandwrittenDigit(rect,pts,possibleDigits));
+                        digits.Add(new HandwrittenDigit(rect, pts, possibleDigits));
                     }
-
+                }
+            //gather digits into numbers and display them on top ot fte first digit in number
             List<List<int>> numbers = DigitsToNumbersLogic.digitsToNumbers(digits);
             foreach (List<int> number in numbers)
             {

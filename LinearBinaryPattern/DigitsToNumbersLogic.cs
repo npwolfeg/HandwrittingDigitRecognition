@@ -68,7 +68,7 @@ namespace LinearBinaryPattern
             foreach (int number in numbers)
                 result.Add(new List<int>());
             for (int i = 0; i < digitNumbers.Length; i++)
-                result[digitNumbers[i]].Add(i);                          //list of numbers. each number has a list of its digits
+                result[numbers.ToList().IndexOf(digitNumbers[i])].Add(i); //list of numbers. each number has a list of its digits
 
             return result;
         }
