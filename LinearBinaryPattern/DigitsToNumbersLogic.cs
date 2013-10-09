@@ -30,9 +30,15 @@ namespace LinearBinaryPattern
             return Math.Abs(rect1.Height - rect2.Height) < delta;
         }
 
+        private static bool isOnTheSameLine(Rectangle rect1, Rectangle rect2, int deltaPercent)
+        {
+            double delta = Math.Max(rect1.Height, rect2.Height) * deltaPercent / 100;
+            return Math.Abs(rect1.Bottom - rect2.Bottom) < delta;
+        }
+
         private static bool isSameNumber(Rectangle rect1, Rectangle rect2)
         {
-            return isNear(rect1, rect2) & isHeightTheSame(rect1, rect2,25);
+            return isNear(rect1, rect2) & isHeightTheSame(rect1, rect2, 25) & isOnTheSameLine(rect1, rect2, 25);
         }
 
         private static int[] digitsToNumbers(List<Rectangle> digitRects)
@@ -45,6 +51,14 @@ namespace LinearBinaryPattern
                     if (isSameNumber(digitRects[i], digitRects[j]))
                         digitNumbers[j] = digitNumbers[i];
             return digitNumbers;
+        }
+
+        public static List<Rectangle> numbersRects(List<HandwrittenDigit> digits)
+        {
+            List<Rectangle> digitRects = new List<Rectangle>();
+            foreach(HandwrittenDigit digit in digits)
+                digitRects.Add(digit.bounds);
+            return numbersRects(digitRects);
         }
 
         public static List<Rectangle> numbersRects(List<Rectangle> digitRects)

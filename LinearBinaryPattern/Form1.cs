@@ -589,71 +589,78 @@ namespace LinearBinaryPattern
 
         private void button17_Click(object sender, EventArgs e)
         {
-            List<Rectangle> digitRects = new List<Rectangle>();
+            List<HandwrittenDigit> digits = new List<HandwrittenDigit>();
+            /*List<Rectangle> digitRects = new List<Rectangle>();
             List<Rectangle> numberRects = new List<Rectangle>();
+            List<HashSet<Point>> digitPointSets = new List<HashSet<Point>>();*/
             Rectangle rect;
-            sl.loadWeights(@"weights\simple-991.txt");
+            HashSet<Point> pts;
+            List<int> possibleDigits;
             Bitmap newBigBitmap = new Bitmap(bigBitmap);
             for (int i = 0; i < newBigBitmap.Width; i++)
                 for (int j = 0; j < newBigBitmap.Height; j++)
                     if (newBigBitmap.GetPixel(i, j).A != 0)
                     {
-                        HashSet<Point> pts = BmpProcesser.getConnectedPicture(new Point(i, j), newBigBitmap);
+                        pts = BmpProcesser.getConnectedPicture(new Point(i, j), newBigBitmap);
+                        
                         Bitmap bmp = new Bitmap(newBigBitmap.Width, newBigBitmap.Height);
                         foreach (Point p in pts)
                         {
                             bmp.SetPixel(p.X, p.Y, Color.Black);
                             newBigBitmap.SetPixel(p.X, p.Y, Color.FromArgb(0, 0, 0, 0));
                         }
-
                         rect = BmpProcesser.getBounds(bmp);
-                        digitRects.Add(rect);
 
-                        using (Graphics g = Graphics.FromImage(bigBitmap))
-                        {
-                            //g.DrawString(ID1.ToString(), new Font("Arial", 20), new SolidBrush(Color.Red), i - 20, j - 40);
-                            //g.DrawString(ID2.ToString(), new Font("Arial", 20), new SolidBrush(Color.Green), i - 20, j - 60);
-                            //g.DrawRectangle(new Pen(Color.Blue), rect);
-                        }
+                        possibleDigits = new List<int>();
+
+                        drawingBitmap = BmpProcesser.FromAlphaToRGB(bmp);
+                        drawingBitmap = BmpProcesser.normalizeBitmapRChannel(drawingBitmap, bmp.Width, bmp.Height);
+                        drawingBitmap = BmpProcesser.ResizeBitmap(drawingBitmap, 100, 100);
+
+                        sl.loadWeights(@"weights\simple-991.txt");
+                        List<double> dist = sl.guess(drawingBitmap);
+                        possibleDigits.Add(dist.IndexOf(dist.Min()));
+
+                        sl.loadWeights(@"weights\simpleLinearDelta=976.txt");
+                        dist = sl.guess(drawingBitmap);
+                        possibleDigits.Add(dist.IndexOf(dist.Min()));
+
+                        drawingBitmap = BmpProcesser.normalizeBitmap(bmp, bmp.Width, bmp.Height);
+                        drawingBitmap = BmpProcesser.ResizeBitmap(drawingBitmap, 100, 100);
+                        pictureBox1.Image = drawingBitmap;
+                        dist = guessWide(drawingBitmap);
+                        possibleDigits.Add(dist.IndexOf(dist.Min()));
+                        digits.Add(new HandwrittenDigit(rect,pts,possibleDigits));
                     }
-            numberRects = DigitsToNumbersLogic.numbersRects(digitRects);
+            newBigBitmap = new Bitmap(bigBitmap);
+            List<Rectangle>  numberRects = DigitsToNumbersLogic.numbersRects(digits);
             foreach (Rectangle numberRect in numberRects)
             {
                 int counter = 0;
-                Bitmap numberBitmap = BmpProcesser.copyPartOfBitmap(bigBitmap, numberRect);
-                Bitmap newNumberBitmap = new Bitmap(numberBitmap);
-                for (int i = 0; i < newNumberBitmap.Width; i++)
-                    for (int j = 0; j < newNumberBitmap.Height; j++)
-                        if (newNumberBitmap.GetPixel(i, j).A != 0)
+                //Bitmap numberBitmap = BmpProcesser.copyPartOfBitmap(bigBitmap, numberRect);
+                //Bitmap newNumberBitmap = new Bitmap(numberBitmap);
+                for (int i = 0; i < numberRect.Width; i++)
+                    for (int j = 0; j < numberRect.Height; j++)
+                        if (newBigBitmap.GetPixel(i + numberRect.Left, j + numberRect.Top).A > 0)
                         {
-                            HashSet<Point> pts = BmpProcesser.getConnectedPicture(new Point(i, j), newNumberBitmap);
-                            Bitmap bmp = new Bitmap(newNumberBitmap.Width, newNumberBitmap.Height);
-                            foreach (Point p in pts)
+                            HandwrittenDigit currentDigit = new HandwrittenDigit();
+
+                            foreach (HandwrittenDigit digit in digits)
+                                if (digit.points.Contains(new Point(i+numberRect.Left, j+numberRect.Top)))
+                                    currentDigit = digit;
+                            if (numberRect.Contains(currentDigit.bounds))
                             {
-                                bmp.SetPixel(p.X, p.Y, Color.Black);
-                                newNumberBitmap.SetPixel(p.X, p.Y, Color.FromArgb(0, 0, 0, 0));
-                            }
-
-                            drawingBitmap = BmpProcesser.FromAlphaToRGB(bmp);
-                            drawingBitmap = BmpProcesser.normalizeBitmapRChannel(drawingBitmap, bmp.Width, bmp.Height);
-                            drawingBitmap = BmpProcesser.ResizeBitmap(drawingBitmap, 100, 100);
-                            
-                            List<double> dist = sl.guess(drawingBitmap);
-                            int ID1 = dist.IndexOf(dist.Min());                                                       
-
-                            drawingBitmap = BmpProcesser.normalizeBitmap(bmp, bmp.Width, bmp.Height);
-                            drawingBitmap = BmpProcesser.ResizeBitmap(drawingBitmap, 100, 100);
-                            pictureBox1.Image = drawingBitmap;
-                            dist = guessWide(drawingBitmap);
-                            int ID2 = dist.IndexOf(dist.Min());
-
-                            using (Graphics g = Graphics.FromImage(bigBitmap))
-                            {
-                                g.DrawString(ID1.ToString(), new Font("Arial", 20), new SolidBrush(Color.Red), numberRect.Left+counter*20, numberRect.Top-40);
-                                g.DrawString(ID2.ToString(), new Font("Arial", 20), new SolidBrush(Color.Green), numberRect.Left + counter * 20, numberRect.Top - 60);
-                                //g.DrawRectangle(new Pen(Color.Blue), rect);
-                            }
-                            counter++;
+                                foreach (Point p in currentDigit.points)
+                                    newBigBitmap.SetPixel(p.X, p.Y, Color.FromArgb(0, 0, 0, 0));
+                                using (Graphics g = Graphics.FromImage(bigBitmap))
+                                {
+                                    g.DrawString(currentDigit.possiebleDigits[0].ToString(), new Font("Arial", 20), new SolidBrush(Color.Red), numberRect.Left + counter * 20, numberRect.Top - 30);
+                                    g.DrawString(currentDigit.possiebleDigits[1].ToString(), new Font("Arial", 20), new SolidBrush(Color.Orange), numberRect.Left + counter * 20, numberRect.Top - 50);
+                                    g.DrawString(currentDigit.possiebleDigits[2].ToString(), new Font("Arial", 20), new SolidBrush(Color.Green), numberRect.Left + counter * 20, numberRect.Top - 70);
+                                    g.DrawRectangle(new Pen(Color.Orange,4), currentDigit.bounds);
+                                }
+                                counter++;
+                            }                            
                         }
                 using (Graphics g = Graphics.FromImage(bigBitmap))
                 {
