@@ -10,18 +10,17 @@ using System.ComponentModel;
 
 namespace LinearBinaryPattern
 {
-    class CenterOfMassLearning
+    class CenterLearning
     {
         string path = @"F:\DigitDB\PictureSaver\";
-        static int blockRows = 1;
-        static int blockCols = 1;
+        static int blockRows = 32;
+        static int blockCols = 32;
         static int picWidth = 100;
         static int picHeight = 100;
         static int blockWidth = picWidth / blockCols;
         static int blockHeight = picHeight / blockRows;
         static int optionsCount = 10;
         static int vectorLength = 2 * blockRows * blockCols;
-        //Point[] weights = new Point[optionsCount]; // weights there are the average coords of black pixels
         double[][] weights = new double[optionsCount][];
 
         public double delta = 1;
@@ -30,13 +29,16 @@ namespace LinearBinaryPattern
         public bool finished;
 
 
-        public CenterOfMassLearning()
+        public CenterLearning()
         {
             for (int n = 0; n < optionsCount; n++)
             {
                 weights[n] = new double[vectorLength];
                 for (int i = 0; i < vectorLength; i++)
-                    weights[n][i] = 50;
+                    if (i % 2 == 0)
+                        weights[n][i] = blockWidth / 2;
+                    else
+                        weights[n][i] = blockHeight / 2;
             }
         }
 
@@ -79,15 +81,22 @@ namespace LinearBinaryPattern
         }
 
         public Bitmap visualize()
-        {
+        {            
             Bitmap result = new Bitmap(1000, 100);
             loadWeights();
             for (int n = 0; n < optionsCount; n++)
                 using (Graphics g = Graphics.FromImage(result))
                 {
-                    g.DrawRectangle(new Pen(Color.Orange, 4), new Rectangle(n * 100 + (int)weights[n][0], (int)weights[n][1], 5, 5));
-                    g.DrawLine(new Pen(Color.Black, 1), n * 100 + 50, 0, n * 100 + 50, 100);
-                    g.DrawLine(new Pen(Color.Black, 1), 0, 50, optionsCount * 100, 50);
+                    int counter = 0;
+                    for (int i = 0; i < blockCols; i++)
+                        for (int j = 0; j < blockRows; j++)
+                        {
+                            //g.DrawRectangle(new Pen(Color.Blue, 4), n * picWidth + i * blockWidth, j * blockHeight, blockWidth, blockHeight);
+                            g.DrawRectangle(new Pen(Color.Orange, 4), new Rectangle(n * picWidth + i * blockWidth + (int)weights[n][counter], j * blockHeight + (int)weights[n][counter+1], 1, 1));
+                            //g.DrawLine(new Pen(Color.Black, 1), n * picWidth + i * blockWidth + blockWidth / 2, j * blockHeight, n * picWidth + i * blockWidth + blockWidth / 2, (j + 1) * blockHeight);
+                            //g.DrawLine(new Pen(Color.Black, 1), n * picWidth + i * blockWidth, j * blockHeight + blockHeight/2, n * picWidth + (i+1) * blockWidth, j * blockHeight + blockHeight/2);
+                            counter++;
+                        }
                 }
             return result;
         }
@@ -104,25 +113,46 @@ namespace LinearBinaryPattern
                         result[0] += i;
                         result[1] += j;
                     }
-            result[0] = result[0] / counter;
-            result[1] = result[1] / counter;
+            if (counter != 0)
+            {
+                result[0] = result[0] / counter;
+                result[1] = result[1] / counter;
+            }
+            else
+            {
+                result[0] = blockWidth / 2;
+                result[1] = blockHeight / 2;
+            }
             return result;
         }
 
-        private double getDistance(double[] p1, double[] p2)
+        private double getDistance(double[] vector1, double[] vector2)
         {
             double result = 0;
             for (int i = 0; i < vectorLength; i++)
-                    result += Math.Pow(p1[i] - p2[i], 2);
+                    result += Math.Pow(vector1[i] - vector2[i], 2);
             return Math.Sqrt(result);
         }
 
         public List<double> guess(Bitmap bmp)
         {
             List<double> dist = new List<double>();
-            double[] currentCenter = Center(bmp);
+            double[] vector1 = new double[vectorLength];
+            Rectangle copyRect;
+            int counter = 0;
+
+            for(int i=0;i<blockCols;i++)
+                for(int j=0;j<blockRows;j++)
+                {
+                    copyRect = new Rectangle(i * blockWidth, j * blockHeight, blockWidth, blockHeight);
+                    Bitmap partOfBmp = BmpProcesser.copyPartOfBitmap(bmp,copyRect);
+                    double[] currentCenter = Center(partOfBmp);
+                    vector1[counter] = currentCenter[0];
+                    vector1[counter+1] = currentCenter[1];
+                    counter++;
+                }            
             for (int n = 0; n < optionsCount; n++)
-                dist.Add(getDistance(currentCenter, weights[n]));
+                dist.Add(getDistance(vector1, weights[n]));
             dist = Vector.normalyzeVektor(dist);
             return dist;
         }
@@ -169,14 +199,25 @@ namespace LinearBinaryPattern
         {
             List<double> arr = guess(bmp);
             int id = arr.IndexOf(arr.Min());
+            double[] vector1 = new double[vectorLength];
+            Rectangle copyRect;
+            int counter = 0;
             if (n != id)
             {
-                //int realPixel = bmp.GetPixel(i, j).R;
-                double[] currentCenter = Center(bmp);
+                for (int i = 0; i < blockCols; i++)
+                    for (int j = 0; j < blockRows; j++)
+                    {
+                        copyRect = new Rectangle(i * blockWidth, j * blockHeight, blockWidth, blockHeight);
+                        Bitmap partOfBmp = BmpProcesser.copyPartOfBitmap(bmp, copyRect);
+                        double[] currentCenter = Center(partOfBmp);
+                        vector1[counter] = currentCenter[0];
+                        vector1[counter + 1] = currentCenter[1];
+                        counter++;
+                    }  
                 for (int i = 0; i < vectorLength; i++)
                 {
-                    weights[n][i] += (int)delta * (currentCenter[i] - weights[n][i]);
-                    weights[id][i] += (int)delta * (weights[n][i] - currentCenter[i]);
+                    weights[n][i] += (int)delta * (vector1[i] - weights[n][i]);
+                    weights[id][i] += (int)delta * (weights[n][i] - vector1[i]);
                 }
             }
         }
@@ -207,6 +248,58 @@ namespace LinearBinaryPattern
                 }
                 delta = -(double)progress / maxProgress + 1;
             }
+            finished = true;
+        }
+
+        public void learnAllAverage(Object learningCount)
+        {
+            double[] vector1 = new double[vectorLength];
+            Rectangle copyRect;
+            int counter = 0;
+            for (int n = 0; n < optionsCount; n++)
+            {
+                weights[n] = new double[vectorLength];
+                for (int i = 0; i < vectorLength; i++)
+                        weights[n][i] = 0;
+            }
+
+            int[] count = new int[optionsCount];
+            int intLearningCount = (int)learningCount;
+            finished = false;
+            Bitmap bmp;
+            using (StreamReader sr = new StreamReader(path + "count.txt"))
+            {
+                for (int i = 0; i < optionsCount; i++)
+                    count[i] = Convert.ToInt32(sr.ReadLine());
+            }
+            progress = 0;
+            maxProgress = intLearningCount * optionsCount;
+            for (int n = 0; n < intLearningCount; n++)
+            {
+                for (int k = 0; k < optionsCount; k++)
+                {
+                    progress++;
+                    bmp = new Bitmap(path + k.ToString() + n.ToString() + ".bmp");
+                    bmp = BmpProcesser.FromAlphaToRGB(bmp);
+                    bmp = BmpProcesser.normalizeBitmapRChannel(bmp, 100, 100);
+                    counter = 0;
+                    for (int i = 0; i < blockCols; i++)
+                        for (int j = 0; j < blockRows; j++)
+                        {
+                            copyRect = new Rectangle(i * blockWidth, j * blockHeight, blockWidth, blockHeight);
+                            Bitmap partOfBmp = BmpProcesser.copyPartOfBitmap(bmp, copyRect);
+                            double[] currentCenter = Center(partOfBmp);
+                            vector1[counter] = currentCenter[0];
+                            vector1[counter + 1] = currentCenter[1];
+                            counter++;
+                        }
+                    for (int i = 0; i < vectorLength; i++)
+                        weights[k][i] += vector1[i];
+                }
+            }
+            for (int k = 0; k < optionsCount; k++)
+            for (int i = 0; i < vectorLength; i++)
+                weights[k][i] = weights[k][i] / intLearningCount;
             finished = true;
         }
 

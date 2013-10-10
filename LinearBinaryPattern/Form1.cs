@@ -32,7 +32,7 @@ namespace LinearBinaryPattern
         //string path = @"F:\C#\MNIST Reader\MNIST Reader\bin\Debug\";
         string path = @"F:\C#\NumberPicturesSaver\NumberPicturesSaver\bin\Debug\";
         Point[] points = new Point[2];
-        CenterOfMassLearning learner = new CenterOfMassLearning();
+        CenterLearning learner = new CenterLearning();
 
         public void clearWideHistograms()
         {
@@ -327,7 +327,7 @@ namespace LinearBinaryPattern
             /*drawingBitmap = new Bitmap(textBox2.Text);
             drawingBitmap = ResizeBitmap(drawingBitmap, 100, 100);
             pictureBox1.Image = drawingBitmap;*/
-            drawingBitmap = new Bitmap(@"F:\DigitDB\PictureSaverThin\01.bmp");
+            drawingBitmap = new Bitmap(@"F:\DigitDB\PictureSaver\01.bmp");
             //drawingBitmap = BmpProcesser.FromAlphaToRGB(drawingBitmap);
             drawingBitmap = BmpProcesser.normalizeBitmapRChannel(drawingBitmap, 100, 100);
             pictureBox1.Image = drawingBitmap;
@@ -529,7 +529,7 @@ namespace LinearBinaryPattern
         private void button9_Click(object sender, EventArgs e)
         {
             listBox1.Items.Clear();
-            Thread oThread = new Thread(learner.learnAll);
+            Thread oThread = new Thread(learner.learnAllAverage);
             oThread.Start(Convert.ToInt32(textBox1.Text));
 
             //time for sl to initialize maxProgress
@@ -557,7 +557,7 @@ namespace LinearBinaryPattern
 
         private void button16_Click(object sender, EventArgs e)
         {
-            //learner.loadWeights(@"weights\Simple\simpleKohonenIf(n=id)n+ = 979.txt");
+            learner.loadWeights(@"weights\Center\center32х32average =933.txt");
             
             drawingBitmap = BmpProcesser.FromAlphaToRGB(drawingBitmap);
             drawingBitmap = BmpProcesser.normalizeBitmapRChannel(drawingBitmap, 100, 100);
@@ -606,11 +606,11 @@ namespace LinearBinaryPattern
                         drawingBitmap = BmpProcesser.normalizeBitmapRChannel(drawingBitmap, bmp.Width, bmp.Height);
                         drawingBitmap = BmpProcesser.ResizeBitmap(drawingBitmap, 100, 100);
 
-                        learner.loadWeights(@"weights\Simple\simple-991.txt");
+                        learner.loadWeights(@"weights\Center\center32х32averageIntensity =913.txt");
                         List<double> dist = learner.guess(drawingBitmap);
                         possibleDigits.Add(dist.IndexOf(dist.Min()));
 
-                        learner.loadWeights(@"weights\Simple\simpleLinearDelta=976.txt");
+                        learner.loadWeights(@"weights\Center\center32х32average =933.txt");
                         dist = learner.guess(drawingBitmap);
                         possibleDigits.Add(dist.IndexOf(dist.Min()));
 
@@ -652,7 +652,7 @@ namespace LinearBinaryPattern
 
         private void button18_Click(object sender, EventArgs e)
         {
-            CenterOfMassLearning c = new CenterOfMassLearning();
+            CenterLearning c = new CenterLearning();
             bigBitmap = c.visualize();
             pictureBox2.Image = bigBitmap;
         }
