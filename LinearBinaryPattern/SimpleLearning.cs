@@ -96,7 +96,6 @@ namespace LinearBinaryPattern
         //duplicate
         public int[,] guessAll(int guessingCount, BackgroundWorker bw)
         {
-            //int intGuessingCount = (int) guessingCount;
             progress = 0;
             maxProgress = guessingCount * optionsCount;
             int[] count = new int[optionsCount];
@@ -169,8 +168,8 @@ namespace LinearBinaryPattern
                     for (int j = 0; j < 100; j++)
                     {
                         int realPixel = bmp.GetPixel(i, j).R;
-                            weights[n, i, j] += delta * (realPixel - weights[n, i, j]);
-                            weights[id, i, j] += delta * (weights[n, i, j] - realPixel);
+                        weights[n, i, j] += delta * (realPixel - weights[n, i, j]);
+                        weights[id, i, j] += delta * (weights[n, i, j] - realPixel);
                     }
             }
         }
@@ -217,7 +216,6 @@ namespace LinearBinaryPattern
                 }
                 delta = -(double)progress / maxProgress + 1;
             }
-
             finished = true;
         }
     }

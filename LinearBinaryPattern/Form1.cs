@@ -32,7 +32,7 @@ namespace LinearBinaryPattern
         //string path = @"F:\C#\MNIST Reader\MNIST Reader\bin\Debug\";
         string path = @"F:\C#\NumberPicturesSaver\NumberPicturesSaver\bin\Debug\";
         Point[] points = new Point[2];
-        SimpleLearning learner = new SimpleLearning();
+        CenterOfMassLearning learner = new CenterOfMassLearning();
 
         public void clearWideHistograms()
         {
@@ -557,7 +557,8 @@ namespace LinearBinaryPattern
 
         private void button16_Click(object sender, EventArgs e)
         {
-            learner.loadWeights(@"weights\Simple\simpleKohonenIf(n=id)n+ = 979.txt");
+            //learner.loadWeights(@"weights\Simple\simpleKohonenIf(n=id)n+ = 979.txt");
+            
             drawingBitmap = BmpProcesser.FromAlphaToRGB(drawingBitmap);
             drawingBitmap = BmpProcesser.normalizeBitmapRChannel(drawingBitmap, 100, 100);
             listBox1.Items.Clear();
