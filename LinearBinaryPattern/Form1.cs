@@ -16,7 +16,7 @@ namespace LinearBinaryPattern
     {
         bool canDraw = false;
         Bitmap drawingBitmap, bigBitmap;
-        int drawingWidth = 8;
+        int drawingWidth = 10;
         int pointsCount = 8;
         int radius = 2;
         static int blockRows = 4;
@@ -571,7 +571,7 @@ namespace LinearBinaryPattern
 
         private void button16_Click(object sender, EventArgs e)
         {
-            sl.loadWeights(@"weights\simple-991.txt");
+            sl.loadWeights(@"weights\simpleLinearDelta=976.txt");
             drawingBitmap = BmpProcesser.FromAlphaToRGB(drawingBitmap);
             drawingBitmap = BmpProcesser.normalizeBitmapRChannel(drawingBitmap, 100, 100);
             listBox1.Items.Clear();
@@ -655,6 +655,12 @@ namespace LinearBinaryPattern
                     counter++;
                 }
             }
+            pictureBox2.Image = bigBitmap;
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            bigBitmap = BmpProcesser.DrawGrid(bigBitmap, 100, 100);
             pictureBox2.Image = bigBitmap;
         }
     }

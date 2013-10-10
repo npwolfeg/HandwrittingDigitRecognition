@@ -209,6 +209,18 @@ namespace LinearBinaryPattern
                 }
             return result;
         }
+
+        static public Bitmap DrawGrid(Bitmap bmp, int width, int height)
+        {
+            Bitmap result = new Bitmap(bmp);
+            for (int i = 0; i < bmp.Width; i++)
+                using (Graphics g = Graphics.FromImage(result))
+                    g.DrawLine(new Pen(Color.Orange, 2), i * 100, 0, i * 100, bmp.Height);
+            for (int i = 0; i < bmp.Height; i++)
+                using (Graphics g = Graphics.FromImage(result))
+                    g.DrawLine(new Pen(Color.Orange, 2), 0, i * 100, bmp.Width, i * 100);
+            return result;
+        }
     }
 
 }
