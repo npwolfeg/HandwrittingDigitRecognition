@@ -32,7 +32,7 @@ namespace LinearBinaryPattern
         //string path = @"F:\C#\MNIST Reader\MNIST Reader\bin\Debug\";
         string path = @"F:\C#\NumberPicturesSaver\NumberPicturesSaver\bin\Debug\";
         Point[] points = new Point[2];
-        SimpleLearning sl = new SimpleLearning();
+        SimpleLearning learner = new SimpleLearning();
 
         public void clearWideHistograms()
         {
@@ -316,7 +316,7 @@ namespace LinearBinaryPattern
             else
             {
                 label1.Text = drawingBitmap.GetPixel(e.X, e.Y).ToString();
-                label2.Text = analyzePixel(drawingBitmap, e.X, e.Y).ToString();
+                label2.Text = e.Location.ToString();
             }
         }
 
@@ -529,55 +529,40 @@ namespace LinearBinaryPattern
         private void button9_Click(object sender, EventArgs e)
         {
             listBox1.Items.Clear();
-            Thread oThread = new Thread(sl.learnAll);
+            Thread oThread = new Thread(learner.learnAll);
             oThread.Start(Convert.ToInt32(textBox1.Text));
 
             //time for sl to initialize maxProgress
-            Thread.Sleep(50);
+            Thread.Sleep(100);
 
             progressBar1.Value = 0;
-            progressBar1.Maximum = sl.maxProgress;
-            while (sl.finished != true)
+            progressBar1.Maximum = learner.maxProgress;
+            while (learner.finished != true)
             {
                 Thread.Sleep(100);
-                progressBar1.Value = sl.progress;
+                progressBar1.Value = learner.progress;
             }
             SaveFileDialog sf = new SaveFileDialog();
             if (sf.ShowDialog() == DialogResult.OK)
             {
-                sl.saveWeights(sf.FileName);
+                learner.saveWeights(sf.FileName);
             }
         }
 
         private void button14_Click(object sender, EventArgs e)
         {
-            bigBitmap = sl.visualize();
+            bigBitmap = learner.visualize();
             pictureBox2.Image = bigBitmap;
-        }
-
-        private void button15_Click(object sender, EventArgs e)
-        {
-            sl.loadWeights();
-            int[,] rightNwrong = sl.guessAll(Convert.ToInt32(textBox1.Text));
-            listBox1.Items.Clear();
-            int sum = 0;
-            for (int i = 0; i < 10; i++)
-            {
-                listBox1.Items.Add(i.ToString() + " " + rightNwrong[i, 0].ToString() + " " + rightNwrong[i, 1].ToString());
-                sum += rightNwrong[i, 0];
-            }
-            listBox1.Items.Add(sum);
         }
 
         private void button16_Click(object sender, EventArgs e)
         {
-            sl.loadWeights(@"weights\simpleLinearDelta=976.txt");
+            learner.loadWeights(@"weights\Simple\simpleKohonenIf(n=id)n+ = 979.txt");
             drawingBitmap = BmpProcesser.FromAlphaToRGB(drawingBitmap);
             drawingBitmap = BmpProcesser.normalizeBitmapRChannel(drawingBitmap, 100, 100);
             listBox1.Items.Clear();
             pictureBox1.Image = drawingBitmap;
-            //List<double> dist = guess();
-            List<double> dist = sl.guess(drawingBitmap);
+               List<double> dist = learner.guess(drawingBitmap);
             int ID;
             for (int i = 0; i < 10; i++)
             {
@@ -620,12 +605,12 @@ namespace LinearBinaryPattern
                         drawingBitmap = BmpProcesser.normalizeBitmapRChannel(drawingBitmap, bmp.Width, bmp.Height);
                         drawingBitmap = BmpProcesser.ResizeBitmap(drawingBitmap, 100, 100);
 
-                        sl.loadWeights(@"weights\simple-991.txt");
-                        List<double> dist = sl.guess(drawingBitmap);
+                        learner.loadWeights(@"weights\Simple\simple-991.txt");
+                        List<double> dist = learner.guess(drawingBitmap);
                         possibleDigits.Add(dist.IndexOf(dist.Min()));
 
-                        sl.loadWeights(@"weights\simpleLinearDelta=976.txt");
-                        dist = sl.guess(drawingBitmap);
+                        learner.loadWeights(@"weights\Simple\simpleLinearDelta=976.txt");
+                        dist = learner.guess(drawingBitmap);
                         possibleDigits.Add(dist.IndexOf(dist.Min()));
 
                         drawingBitmap = BmpProcesser.normalizeBitmap(bmp, bmp.Width, bmp.Height);
@@ -662,6 +647,47 @@ namespace LinearBinaryPattern
         {
             bigBitmap = BmpProcesser.DrawGrid(bigBitmap, 100, 100);
             pictureBox2.Image = bigBitmap;
+        }
+
+        private void button18_Click(object sender, EventArgs e)
+        {
+            CenterOfMassLearning c = new CenterOfMassLearning();
+            bigBitmap = c.visualize();
+            pictureBox2.Image = bigBitmap;
+        }
+
+        private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
+        {
+            BackgroundWorker bw = sender as BackgroundWorker;
+            int arg = (int)e.Argument;
+            e.Result = learner.guessAll(arg,bw);
+        }
+
+        private void button19_Click(object sender, EventArgs e)
+        {
+            int count = Convert.ToInt32(textBox1.Text);
+            progressBar1.Value = 0;
+            progressBar1.Maximum = 100;            
+            learner.loadWeights();
+            backgroundWorker1.RunWorkerAsync(count);
+        }
+
+        private void backgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            int[,] rightNwrong = (int[,]) e.Result;
+            listBox1.Items.Clear();
+            int sum = 0;
+            for (int i = 0; i < 10; i++)
+            {
+                listBox1.Items.Add(i.ToString() + " " + rightNwrong[i, 0].ToString() + " " + rightNwrong[i, 1].ToString());
+                sum += rightNwrong[i, 0];
+            }
+            listBox1.Items.Add(sum);
+        }
+
+        private void backgroundWorker1_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            progressBar1.Value = e.ProgressPercentage;
         }
     }
 

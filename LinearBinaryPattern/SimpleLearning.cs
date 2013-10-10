@@ -5,6 +5,7 @@ using System.Text;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
+using System.ComponentModel;
 
 namespace LinearBinaryPattern
 {
@@ -14,11 +15,10 @@ namespace LinearBinaryPattern
         public double[, ,] weights = new double[optionsCount, 100, 100];
         string path = @"F:\DigitDB\PictureSaver\";
         //string path = @"F:\DigitDB\PictureSaverThin\";
-        int[] count = new int[optionsCount];
         public int progress = 0;
         public int maxProgress = 0;
         public bool finished = false;
-        public double delta = 2;
+        public double delta = 1;
 
         public SimpleLearning()
         {
@@ -94,8 +94,12 @@ namespace LinearBinaryPattern
         }
 
         //duplicate
-        public int[,] guessAll(int guessingCount)
+        public int[,] guessAll(int guessingCount, BackgroundWorker bw)
         {
+            //int intGuessingCount = (int) guessingCount;
+            progress = 0;
+            maxProgress = guessingCount * optionsCount;
+            int[] count = new int[optionsCount];
             finished = false;
             Bitmap bmp;
             List<double> arr;
@@ -103,13 +107,16 @@ namespace LinearBinaryPattern
             int[,] result = new int[10, 2];
             using (StreamReader sr = new StreamReader(path + "count.txt"))
             {
-                for (int i = 0; i < 10; i++)
+                for (int i = 0; i < 10; i++)                    
                     count[i] = Convert.ToInt32(sr.ReadLine());
             }
             for (int n = 0; n < guessingCount; n++)
             {
                 for (int k = 0; k < optionsCount; k++)
                 {
+                    progress++;
+                    bw.ReportProgress((int)((float)progress / maxProgress * 100));
+                    
                     bmp = new Bitmap(path + k.ToString() + n.ToString() + ".bmp");
                     bmp = BmpProcesser.FromAlphaToRGB(bmp);
                     bmp = BmpProcesser.normalizeBitmapRChannel(bmp, 100, 100);
@@ -152,6 +159,21 @@ namespace LinearBinaryPattern
             }
         }
 
+        public void learnKohonen(Bitmap bmp, int n)
+        {
+            List<double> arr = guess(bmp);
+            int id = arr.IndexOf(arr.Min());
+            if (n != id)
+            {
+                for (int i = 0; i < 100; i++)
+                    for (int j = 0; j < 100; j++)
+                    {
+                        int realPixel = bmp.GetPixel(i, j).R;
+                            weights[n, i, j] += delta * (realPixel - weights[n, i, j]);
+                            weights[id, i, j] += delta * (weights[n, i, j] - realPixel);
+                    }
+            }
+        }
 
         public double addWithLimit(double x, int limit)
         {
@@ -171,6 +193,7 @@ namespace LinearBinaryPattern
 
         public void learnAll(Object learningCount)
         {
+            int[] count = new int[optionsCount];
             int intLearningCount = (int)learningCount;
             finished = false;
             Bitmap bmp;
@@ -189,7 +212,7 @@ namespace LinearBinaryPattern
                     bmp = new Bitmap(path + k.ToString() + n.ToString() + ".bmp");
                     bmp = BmpProcesser.FromAlphaToRGB(bmp);
                     bmp = BmpProcesser.normalizeBitmapRChannel(bmp, 100, 100);
-                    learn(bmp, k);
+                    learnKohonen(bmp, k);
 
                 }
                 delta = -(double)progress / maxProgress + 1;

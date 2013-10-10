@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BmpProcesser.cs" />
+    <Compile Include="CenterOfMassLearning.cs" />
     <Compile Include="DigitsToNumbersLogic.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
