@@ -47,6 +47,7 @@
     <Compile Include="BmpProcesser.cs" />
     <Compile Include="CenterLearning.cs" />
     <Compile Include="DigitsToNumbersLogic.cs" />
+    <Compile Include="Distances.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -54,6 +55,7 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="HandwrittenDigit.cs" />
+    <Compile Include="LearningProcedures.cs" />
     <Compile Include="Pixel.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -54,7 +54,6 @@
             this.button16 = new System.Windows.Forms.Button();
             this.button17 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
-            this.button18 = new System.Windows.Forms.Button();
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.button19 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -271,7 +270,7 @@
             this.button9.Name = "button9";
             this.button9.Size = new System.Drawing.Size(100, 23);
             this.button9.TabIndex = 24;
-            this.button9.Text = "simpleLearnAll";
+            this.button9.Text = "LearnAll";
             this.button9.UseVisualStyleBackColor = true;
             this.button9.Click += new System.EventHandler(this.button9_Click);
             // 
@@ -281,7 +280,7 @@
             this.button14.Name = "button14";
             this.button14.Size = new System.Drawing.Size(100, 23);
             this.button14.TabIndex = 25;
-            this.button14.Text = "simpleVisual";
+            this.button14.Text = "Visual";
             this.button14.UseVisualStyleBackColor = true;
             this.button14.Click += new System.EventHandler(this.button14_Click);
             // 
@@ -291,7 +290,7 @@
             this.button16.Name = "button16";
             this.button16.Size = new System.Drawing.Size(100, 23);
             this.button16.TabIndex = 27;
-            this.button16.Text = "simpleGuess";
+            this.button16.Text = "Guess";
             this.button16.UseVisualStyleBackColor = true;
             this.button16.Click += new System.EventHandler(this.button16_Click);
             // 
@@ -315,22 +314,9 @@
             this.button2.UseVisualStyleBackColor = true;
             this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
-            // button18
-            // 
-            this.button18.Location = new System.Drawing.Point(875, 434);
-            this.button18.Name = "button18";
-            this.button18.Size = new System.Drawing.Size(75, 23);
-            this.button18.TabIndex = 30;
-            this.button18.Text = "centerVisual";
-            this.button18.UseVisualStyleBackColor = true;
-            this.button18.Click += new System.EventHandler(this.button18_Click);
-            // 
             // backgroundWorker1
             // 
             this.backgroundWorker1.WorkerReportsProgress = true;
-            this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
-            this.backgroundWorker1.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker1_ProgressChanged);
-            this.backgroundWorker1.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker1_RunWorkerCompleted);
             // 
             // button19
             // 
@@ -338,7 +324,7 @@
             this.button19.Name = "button19";
             this.button19.Size = new System.Drawing.Size(97, 23);
             this.button19.TabIndex = 31;
-            this.button19.Text = "simpleGuessAll";
+            this.button19.Text = "GuessAll";
             this.button19.UseVisualStyleBackColor = true;
             this.button19.Click += new System.EventHandler(this.button19_Click);
             // 
@@ -348,7 +334,6 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(985, 622);
             this.Controls.Add(this.button19);
-            this.Controls.Add(this.button18);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button17);
             this.Controls.Add(this.button16);
@@ -414,7 +399,6 @@
         private System.Windows.Forms.Button button16;
         private System.Windows.Forms.Button button17;
         private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Button button18;
         private System.ComponentModel.BackgroundWorker backgroundWorker1;
         private System.Windows.Forms.Button button19;
     }

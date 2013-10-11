@@ -7,7 +7,7 @@ using System.Drawing;
 
 namespace LinearBinaryPattern
 {
-    class BmpProcesser
+    static class BmpProcesser
     {
         public static Rectangle getBounds(Bitmap sourceBMP)
         {

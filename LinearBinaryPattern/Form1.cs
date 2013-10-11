@@ -529,25 +529,18 @@ namespace LinearBinaryPattern
         private void button9_Click(object sender, EventArgs e)
         {
             listBox1.Items.Clear();
-            Thread oThread = new Thread(learner.learnAll);
-            oThread.Start(Convert.ToInt32(textBox1.Text));
 
-            //time for sl to initialize maxProgress
-            Thread.Sleep(500);
-
+            backgroundWorker1.DoWork -= new DoWorkEventHandler(bg_guessAll_work);
+            backgroundWorker1.RunWorkerCompleted -= new RunWorkerCompletedEventHandler(bg_guessAll_RunWorkerCompleted);
+            backgroundWorker1.ProgressChanged -= new ProgressChangedEventHandler(bg_ProgressChanged);
+            
+            backgroundWorker1.DoWork += new DoWorkEventHandler(bg_learnAll_work);
+            backgroundWorker1.RunWorkerCompleted += new RunWorkerCompletedEventHandler(bg_learnAll_RunWorkerCompleted);
+            backgroundWorker1.ProgressChanged += new ProgressChangedEventHandler(bg_ProgressChanged);
+            int count = Convert.ToInt32(textBox1.Text);
             progressBar1.Value = 0;
-            progressBar1.Maximum = learner.maxProgress;
-            while (learner.finished != true)
-            {
-                Thread.Sleep(100);
-                progressBar1.Value = learner.progress;
-                //listBox1.Items.Add(learner.delta);
-            }
-            SaveFileDialog sf = new SaveFileDialog();
-            if (sf.ShowDialog() == DialogResult.OK)
-            {
-                learner.saveWeights(sf.FileName);
-            }
+            progressBar1.Maximum = 100; 
+            backgroundWorker1.RunWorkerAsync(count);
         }
 
         private void button14_Click(object sender, EventArgs e)
@@ -651,22 +644,29 @@ namespace LinearBinaryPattern
             pictureBox2.Image = bigBitmap;
         }
 
-        private void button18_Click(object sender, EventArgs e)
-        {
-            CenterLearning c = new CenterLearning();
-            bigBitmap = c.visualize();
-            pictureBox2.Image = bigBitmap;
-        }
-
-        private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
+        private void bg_guessAll_work(object sender, DoWorkEventArgs e)
         {
             BackgroundWorker bw = sender as BackgroundWorker;
             int arg = (int)e.Argument;
-            e.Result = learner.guessAll(arg,bw);
+            e.Result = learner.guessAll(arg, bw);
+        }
+
+        private void bg_learnAll_work(object sender, DoWorkEventArgs e)
+        {
+            BackgroundWorker bw = sender as BackgroundWorker;
+            int arg = (int)e.Argument;
+            learner.loadWeights(true, arg,bw);
         }
 
         private void button19_Click(object sender, EventArgs e)
         {
+            backgroundWorker1.DoWork -= new DoWorkEventHandler(bg_learnAll_work);
+            backgroundWorker1.RunWorkerCompleted -= new RunWorkerCompletedEventHandler(bg_learnAll_RunWorkerCompleted);
+            backgroundWorker1.ProgressChanged -= new ProgressChangedEventHandler(bg_ProgressChanged);
+
+            backgroundWorker1.DoWork += new DoWorkEventHandler(bg_guessAll_work);
+            backgroundWorker1.RunWorkerCompleted += new RunWorkerCompletedEventHandler(bg_guessAll_RunWorkerCompleted);
+            backgroundWorker1.ProgressChanged += new ProgressChangedEventHandler(bg_ProgressChanged);
             int count = Convert.ToInt32(textBox1.Text);
             progressBar1.Value = 0;
             progressBar1.Maximum = 100;            
@@ -674,7 +674,7 @@ namespace LinearBinaryPattern
             backgroundWorker1.RunWorkerAsync(count);
         }
 
-        private void backgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        private void bg_guessAll_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             int[,] rightNwrong = (int[,]) e.Result;
             listBox1.Items.Clear();
@@ -687,7 +687,16 @@ namespace LinearBinaryPattern
             listBox1.Items.Add(sum);
         }
 
-        private void backgroundWorker1_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        private void bg_learnAll_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            SaveFileDialog sf = new SaveFileDialog();
+            if (sf.ShowDialog() == DialogResult.OK)
+            {
+                learner.saveWeights(sf.FileName);
+            }
+        }
+
+        private void bg_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             progressBar1.Value = e.ProgressPercentage;
         }

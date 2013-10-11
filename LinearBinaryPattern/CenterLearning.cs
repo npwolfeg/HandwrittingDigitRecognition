@@ -12,22 +12,16 @@ namespace LinearBinaryPattern
 {
     class CenterLearning
     {
-        string path = @"F:\DigitDB\PictureSaver\";
         int blockRows = 16;
         int blockCols = 16;
         static int picWidth = 100;
         static int picHeight = 100;
         int blockWidth;
         int blockHeight;
-        static int optionsCount = 10;
-        int vectorLength;
-        double[][] weights = new double[optionsCount][];
-
-        public double delta = 1;
-        public int progress = 0;
-        public int maxProgress;
-        public bool finished;
-
+        public int optionsCount = 10;
+        public int vectorLength;
+        public double[][] weights;
+        public string parameters;
 
         public CenterLearning()
         {
@@ -36,7 +30,9 @@ namespace LinearBinaryPattern
 
         private void initialize()
         {
+            weights = new double[optionsCount][];
             vectorLength = 2 * blockRows * blockCols;
+            parameters = blockCols.ToString() + 'x' + blockRows.ToString();
             blockWidth = picWidth / blockCols;
             blockHeight = picHeight / blockRows;
             for (int n = 0; n < optionsCount; n++)
@@ -58,6 +54,15 @@ namespace LinearBinaryPattern
                         sw.WriteLine(weights[n][i].ToString());
             }
         }
+        
+        public void saveWeights()
+        {
+            SaveFileDialog sf = new SaveFileDialog();
+            if (sf.ShowDialog() == DialogResult.OK)
+            {
+                saveWeights(sf.FileName);
+            }
+        }
 
         public void loadWeights(string path)
         {
@@ -72,21 +77,25 @@ namespace LinearBinaryPattern
             }
         }
 
+        public void loadWeights(bool useKohonen, int learningCount, BackgroundWorker bw)
+        {
+            LearningProcedures l = new LearningProcedures(this);
+            if (useKohonen)
+                weights = l.learnAll(learningCount, bw);
+        }
+
+        public int[,] guessAll(int guessingCount , BackgroundWorker bw)
+        {
+            LearningProcedures l = new LearningProcedures(this);
+            return l.guessAll(guessingCount, bw);
+        }
+
         public void loadWeights()
         {
             OpenFileDialog of = new OpenFileDialog();
             if (of.ShowDialog() == DialogResult.OK)
             {
                 loadWeights(of.FileName);
-            }
-        }
-
-        public void saveWeights()
-        {
-            SaveFileDialog sf = new SaveFileDialog();
-            if (sf.ShowDialog() == DialogResult.OK)
-            {
-                saveWeights(sf.FileName);
             }
         }
 
@@ -136,183 +145,28 @@ namespace LinearBinaryPattern
             return result;
         }
 
-        private double getDistance(double[] vector1, double[] vector2)
+        public double[] getVector(Bitmap bmp)
         {
-            double result = 0;
-            for (int i = 0; i < vectorLength; i++)
-                    result += Math.Pow(vector1[i] - vector2[i], 2);
-            return Math.Sqrt(result);
-        }
-
-        public List<double> guess(Bitmap bmp)
-        {
-            List<double> dist = new List<double>();
-            double[] vector1 = new double[vectorLength];
+            double[] result = new double[vectorLength];
             Rectangle copyRect;
             int counter = 0;
 
-            for(int i=0;i<blockCols;i++)
-                for(int j=0;j<blockRows;j++)
-                {
-                    copyRect = new Rectangle(i * blockWidth, j * blockHeight, blockWidth, blockHeight);
-                    Bitmap partOfBmp = BmpProcesser.copyPartOfBitmap(bmp,copyRect);
-                    double[] currentCenter = Center(partOfBmp);
-                    vector1[counter] = currentCenter[0];
-                    vector1[counter+1] = currentCenter[1];
-                    counter++;
-                }            
-            for (int n = 0; n < optionsCount; n++)
-                dist.Add(getDistance(vector1, weights[n]));
-            dist = Vector.normalyzeVektor(dist);
-            return dist;
-        }
-
-        //duplicate!!
-        public int[,] guessAll(int guessingCount, BackgroundWorker bw)
-        {
-            progress = 0;
-            maxProgress = guessingCount * optionsCount;
-            int[] count = new int[optionsCount];
-            finished = false;
-            Bitmap bmp;
-            List<double> arr;
-            int ID;
-            int[,] result = new int[10, 2];
-            using (StreamReader sr = new StreamReader(path + "count.txt"))
-            {
-                for (int i = 0; i < 10; i++)
-                    count[i] = Convert.ToInt32(sr.ReadLine());
-            }
-            for (int n = 0; n < guessingCount; n++)
-            {
-                for (int k = 0; k < optionsCount; k++)
-                {
-                    progress++;
-                    bw.ReportProgress((int)((float)progress / maxProgress * 100));
-
-                    bmp = new Bitmap(path + k.ToString() + n.ToString() + ".bmp");
-                    bmp = BmpProcesser.FromAlphaToRGB(bmp);
-                    bmp = BmpProcesser.normalizeBitmapRChannel(bmp, 100, 100);
-                    arr = guess(bmp);
-                    ID = arr.IndexOf(arr.Min());
-                    if (ID == k)
-                        result[k, 0]++;
-                    else
-                        result[ID, 1]++;
-                }
-            }
-            finished = true;
-            return result;
-        }
-
-        public void learnKohonen(Bitmap bmp, int n)
-        {
-            List<double> arr = guess(bmp);
-            int id = arr.IndexOf(arr.Min());
-            double[] vector1 = new double[vectorLength];
-            Rectangle copyRect;
-            int counter = 0;
             for (int i = 0; i < blockCols; i++)
                 for (int j = 0; j < blockRows; j++)
                 {
                     copyRect = new Rectangle(i * blockWidth, j * blockHeight, blockWidth, blockHeight);
                     Bitmap partOfBmp = BmpProcesser.copyPartOfBitmap(bmp, copyRect);
                     double[] currentCenter = Center(partOfBmp);
-                    vector1[counter] = currentCenter[0];
-                    vector1[counter + 1] = currentCenter[1];
+                    result[counter] = currentCenter[0];
+                    result[counter + 1] = currentCenter[1];
                     counter++;
                 }
-            if (n != id)
-                for (int i = 0; i < vectorLength; i++)
-                {
-                    weights[n][i] += delta * (vector1[i] - weights[n][i]);
-                    weights[id][i] += delta * (weights[n][i] - vector1[i]);
-                }
-            
-            else
-                for (int i = 0; i < vectorLength; i++)
-                    weights[n][i] += delta * (vector1[i] - weights[n][i]);
+            return result;
         }
 
-        public void learnAll(Object learningCount)
+        public List<double> guess(Bitmap bmp)
         {
-            int[] count = new int[optionsCount];
-            int intLearningCount = (int)learningCount;
-            finished = false;
-            Bitmap bmp;
-            using (StreamReader sr = new StreamReader(path + "count.txt"))
-            {
-                for (int i = 0; i < optionsCount; i++)
-                    count[i] = Convert.ToInt32(sr.ReadLine());
-            }
-            progress = 0;
-            maxProgress = intLearningCount * optionsCount;
-            for (int n = 0; n < intLearningCount; n++)
-            {
-                for (int k = 0; k < optionsCount; k++)
-                {
-                    progress++;
-                    bmp = new Bitmap(path + k.ToString() + n.ToString() + ".bmp");
-                    bmp = BmpProcesser.FromAlphaToRGB(bmp);
-                    bmp = BmpProcesser.normalizeBitmapRChannel(bmp, 100, 100);
-                    learnKohonen(bmp, k);
-
-                }
-                delta = -(double)progress / (1*maxProgress) + 1;
-            }
-            finished = true;
-        }
-
-        public void learnAllAverage(Object learningCount)
-        {
-            double[] vector1 = new double[vectorLength];
-            Rectangle copyRect;
-            int counter = 0;
-            for (int n = 0; n < optionsCount; n++)
-            {
-                weights[n] = new double[vectorLength];
-                for (int i = 0; i < vectorLength; i++)
-                        weights[n][i] = 0;
-            }
-
-            int[] count = new int[optionsCount];
-            int intLearningCount = (int)learningCount;
-            finished = false;
-            Bitmap bmp;
-            using (StreamReader sr = new StreamReader(path + "count.txt"))
-            {
-                for (int i = 0; i < optionsCount; i++)
-                    count[i] = Convert.ToInt32(sr.ReadLine());
-            }
-            progress = 0;
-            maxProgress = intLearningCount * optionsCount;
-            for (int n = 0; n < intLearningCount; n++)
-            {
-                for (int k = 0; k < optionsCount; k++)
-                {
-                    progress++;
-                    bmp = new Bitmap(path + k.ToString() + n.ToString() + ".bmp");
-                    bmp = BmpProcesser.FromAlphaToRGB(bmp);
-                    bmp = BmpProcesser.normalizeBitmapRChannel(bmp, 100, 100);
-                    counter = 0;
-                    for (int i = 0; i < blockCols; i++)
-                        for (int j = 0; j < blockRows; j++)
-                        {
-                            copyRect = new Rectangle(i * blockWidth, j * blockHeight, blockWidth, blockHeight);
-                            Bitmap partOfBmp = BmpProcesser.copyPartOfBitmap(bmp, copyRect);
-                            double[] currentCenter = Center(partOfBmp);
-                            vector1[counter] = currentCenter[0];
-                            vector1[counter + 1] = currentCenter[1];
-                            counter++;
-                        }
-                    for (int i = 0; i < vectorLength; i++)
-                        weights[k][i] += vector1[i];
-                }
-            }
-            for (int k = 0; k < optionsCount; k++)
-            for (int i = 0; i < vectorLength; i++)
-                weights[k][i] = weights[k][i] / intLearningCount;
-            finished = true;
-        }
+            return LearningProcedures.guess(getVector(bmp),optionsCount,weights);
+        } 
     }
 }
