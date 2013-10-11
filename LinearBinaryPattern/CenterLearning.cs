@@ -13,14 +13,14 @@ namespace LinearBinaryPattern
     class CenterLearning
     {
         string path = @"F:\DigitDB\PictureSaver\";
-        static int blockRows = 32;
-        static int blockCols = 32;
+        int blockRows = 16;
+        int blockCols = 16;
         static int picWidth = 100;
         static int picHeight = 100;
-        static int blockWidth = picWidth / blockCols;
-        static int blockHeight = picHeight / blockRows;
+        int blockWidth;
+        int blockHeight;
         static int optionsCount = 10;
-        static int vectorLength = 2 * blockRows * blockCols;
+        int vectorLength;
         double[][] weights = new double[optionsCount][];
 
         public double delta = 1;
@@ -31,14 +31,19 @@ namespace LinearBinaryPattern
 
         public CenterLearning()
         {
+            initialize();
+        }
+
+        private void initialize()
+        {
+            vectorLength = 2 * blockRows * blockCols;
+            blockWidth = picWidth / blockCols;
+            blockHeight = picHeight / blockRows;
             for (int n = 0; n < optionsCount; n++)
             {
                 weights[n] = new double[vectorLength];
                 for (int i = 0; i < vectorLength; i++)
-                    if (i % 2 == 0)
-                        weights[n][i] = blockWidth / 2;
-                    else
-                        weights[n][i] = blockHeight / 2;
+                    weights[n][i] = 0;
             }
         }
 
@@ -46,6 +51,8 @@ namespace LinearBinaryPattern
         {
             using (StreamWriter sw = new StreamWriter(path))
             {
+                sw.WriteLine(blockCols.ToString());
+                sw.WriteLine(blockRows.ToString());
                 for (int n = 0; n < optionsCount; n++)
                     for (int i = 0; i < vectorLength; i++)
                         sw.WriteLine(weights[n][i].ToString());
@@ -56,6 +63,9 @@ namespace LinearBinaryPattern
         {
             using (StreamReader sw = new StreamReader(path))
             {
+                blockCols = Convert.ToInt32(sw.ReadLine());
+                blockRows = Convert.ToInt32(sw.ReadLine());
+                initialize();
                 for (int n = 0; n < optionsCount; n++)
                     for (int i = 0; i < vectorLength; i++)
                     weights[n][i] = Convert.ToDouble(sw.ReadLine());
@@ -202,24 +212,26 @@ namespace LinearBinaryPattern
             double[] vector1 = new double[vectorLength];
             Rectangle copyRect;
             int counter = 0;
+            for (int i = 0; i < blockCols; i++)
+                for (int j = 0; j < blockRows; j++)
+                {
+                    copyRect = new Rectangle(i * blockWidth, j * blockHeight, blockWidth, blockHeight);
+                    Bitmap partOfBmp = BmpProcesser.copyPartOfBitmap(bmp, copyRect);
+                    double[] currentCenter = Center(partOfBmp);
+                    vector1[counter] = currentCenter[0];
+                    vector1[counter + 1] = currentCenter[1];
+                    counter++;
+                }
             if (n != id)
-            {
-                for (int i = 0; i < blockCols; i++)
-                    for (int j = 0; j < blockRows; j++)
-                    {
-                        copyRect = new Rectangle(i * blockWidth, j * blockHeight, blockWidth, blockHeight);
-                        Bitmap partOfBmp = BmpProcesser.copyPartOfBitmap(bmp, copyRect);
-                        double[] currentCenter = Center(partOfBmp);
-                        vector1[counter] = currentCenter[0];
-                        vector1[counter + 1] = currentCenter[1];
-                        counter++;
-                    }  
                 for (int i = 0; i < vectorLength; i++)
                 {
-                    weights[n][i] += (int)delta * (vector1[i] - weights[n][i]);
-                    weights[id][i] += (int)delta * (weights[n][i] - vector1[i]);
+                    weights[n][i] += delta * (vector1[i] - weights[n][i]);
+                    weights[id][i] += delta * (weights[n][i] - vector1[i]);
                 }
-            }
+            
+            else
+                for (int i = 0; i < vectorLength; i++)
+                    weights[n][i] += delta * (vector1[i] - weights[n][i]);
         }
 
         public void learnAll(Object learningCount)
@@ -246,7 +258,7 @@ namespace LinearBinaryPattern
                     learnKohonen(bmp, k);
 
                 }
-                delta = -(double)progress / maxProgress + 1;
+                delta = -(double)progress / (1*maxProgress) + 1;
             }
             finished = true;
         }
@@ -302,6 +314,5 @@ namespace LinearBinaryPattern
                 weights[k][i] = weights[k][i] / intLearningCount;
             finished = true;
         }
-
     }
 }

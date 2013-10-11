@@ -529,11 +529,11 @@ namespace LinearBinaryPattern
         private void button9_Click(object sender, EventArgs e)
         {
             listBox1.Items.Clear();
-            Thread oThread = new Thread(learner.learnAllAverage);
+            Thread oThread = new Thread(learner.learnAll);
             oThread.Start(Convert.ToInt32(textBox1.Text));
 
             //time for sl to initialize maxProgress
-            Thread.Sleep(100);
+            Thread.Sleep(500);
 
             progressBar1.Value = 0;
             progressBar1.Maximum = learner.maxProgress;
@@ -541,6 +541,7 @@ namespace LinearBinaryPattern
             {
                 Thread.Sleep(100);
                 progressBar1.Value = learner.progress;
+                //listBox1.Items.Add(learner.delta);
             }
             SaveFileDialog sf = new SaveFileDialog();
             if (sf.ShowDialog() == DialogResult.OK)
@@ -557,7 +558,7 @@ namespace LinearBinaryPattern
 
         private void button16_Click(object sender, EventArgs e)
         {
-            learner.loadWeights(@"weights\Center\center32х32average =933.txt");
+            learner.loadWeights(@"weights\Center\center10х10average = 891.txt");
             
             drawingBitmap = BmpProcesser.FromAlphaToRGB(drawingBitmap);
             drawingBitmap = BmpProcesser.normalizeBitmapRChannel(drawingBitmap, 100, 100);
@@ -606,11 +607,11 @@ namespace LinearBinaryPattern
                         drawingBitmap = BmpProcesser.normalizeBitmapRChannel(drawingBitmap, bmp.Width, bmp.Height);
                         drawingBitmap = BmpProcesser.ResizeBitmap(drawingBitmap, 100, 100);
 
-                        learner.loadWeights(@"weights\Center\center32х32averageIntensity =913.txt");
+                        learner.loadWeights(@"weights\Center\center10х10If(n==id) = 484.txt");
                         List<double> dist = learner.guess(drawingBitmap);
                         possibleDigits.Add(dist.IndexOf(dist.Min()));
 
-                        learner.loadWeights(@"weights\Center\center32х32average =933.txt");
+                        learner.loadWeights(@"weights\Center\center10х10average = 891.txt");
                         dist = learner.guess(drawingBitmap);
                         possibleDigits.Add(dist.IndexOf(dist.Min()));
 
@@ -618,7 +619,7 @@ namespace LinearBinaryPattern
                         drawingBitmap = BmpProcesser.ResizeBitmap(drawingBitmap, 100, 100);
                         pictureBox1.Image = drawingBitmap;
                         dist = guessWide(drawingBitmap);
-                        possibleDigits.Add(dist.IndexOf(dist.Min()));
+                        //possibleDigits.Add(dist.IndexOf(dist.Min()));
                         digits.Add(new HandwrittenDigit(rect, pts, possibleDigits));
                     }
                 }
@@ -635,7 +636,7 @@ namespace LinearBinaryPattern
                     {
                         g.DrawString(digits[digit].possiebleDigits[0].ToString(), new Font("Arial", 20), new SolidBrush(Color.Red), left + counter * 20, top - 30);
                         g.DrawString(digits[digit].possiebleDigits[1].ToString(), new Font("Arial", 20), new SolidBrush(Color.Orange), left + counter * 20, top - 50);
-                        g.DrawString(digits[digit].possiebleDigits[2].ToString(), new Font("Arial", 20), new SolidBrush(Color.Green), left + counter * 20, top - 70);
+                        //g.DrawString(digits[digit].possiebleDigits[2].ToString(), new Font("Arial", 20), new SolidBrush(Color.Green), left + counter * 20, top - 70);
                         //g.DrawRectangle(new Pen(Color.Orange, 4), currentDigit.bounds);
                     }
                     counter++;
