@@ -21,12 +21,15 @@ namespace LinearBinaryPattern
         public int optionsCount = 10;
         public int vectorLength;
         public double[][] weights;
+<<<<<<< HEAD
 
         public struct Parameters
         {
             public int blockCols;
             public int blockRows;
         }
+=======
+>>>>>>> 51e106b4b3b1545042429de44864ee942ffb715b
 
         public CenterLearning()
         {
@@ -81,6 +84,7 @@ namespace LinearBinaryPattern
             }
         }
 
+<<<<<<< HEAD
         public void learnAllKohonen(int learningCount, BackgroundWorker bw, bool linearDelta, double deltaAtTheEnd, Object parameters)
         {
             LearningProcedures l = new LearningProcedures(this);
@@ -91,6 +95,18 @@ namespace LinearBinaryPattern
         {
             LearningProcedures l = new LearningProcedures(this);
             weights = l.learnAllAverage(learningCount, bw, parameters);
+=======
+        public void learnAllKohonen(int learningCount, BackgroundWorker bw, bool linearDelta, double deltaAtTheEnd)
+        {
+            LearningProcedures l = new LearningProcedures(this);
+                weights = l.learnAll(learningCount, bw, linearDelta, deltaAtTheEnd);
+        }
+
+        public void learnAllAverage(int learningCount, BackgroundWorker bw)
+        {
+            LearningProcedures l = new LearningProcedures(this);
+            weights = l.learnAllAverage(learningCount, bw);
+>>>>>>> 51e106b4b3b1545042429de44864ee942ffb715b
         }
         public int[,] guessAll(int guessingCount , BackgroundWorker bw)
         {
@@ -102,12 +118,16 @@ namespace LinearBinaryPattern
         {
             string path = @"F:\C#\HandwrittingDigitRecognition\LinearBinaryPattern\bin\Debug\weights\Center\auto\";
             LearningProcedures l = new LearningProcedures(this);
+<<<<<<< HEAD
             List<Object> paramList = new List<Object>();
             Parameters param;
             param.blockCols = 10;
             param.blockRows = 10;
             paramList.Add(param);
             l.AutoTest(bw, path,paramList);
+=======
+            l.AutoTest(bw, path);
+>>>>>>> 51e106b4b3b1545042429de44864ee942ffb715b
         }
 
         public void loadWeights()

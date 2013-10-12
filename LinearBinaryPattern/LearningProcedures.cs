@@ -50,7 +50,11 @@ namespace LinearBinaryPattern
             return weights;
         }
 
+<<<<<<< HEAD
         public double[][] learnAll(int learningCount, BackgroundWorker bw, bool linearDelta, double deltaAtTheEnd, Object parameters)
+=======
+        public double[][] learnAll(int learningCount, BackgroundWorker bw, bool linearDelta, double deltaAtTheEnd)
+>>>>>>> 51e106b4b3b1545042429de44864ee942ffb715b
         {
             double delta = 1;
             int optionsCount = learner.optionsCount;
@@ -82,7 +86,11 @@ namespace LinearBinaryPattern
                     bmp = new Bitmap(path + k.ToString() + n.ToString() + ".bmp");
                     bmp = BmpProcesser.FromAlphaToRGB(bmp);
                     bmp = BmpProcesser.normalizeBitmapRChannel(bmp, 100, 100);
+<<<<<<< HEAD
                     learnKohonen(learner.getVector(bmp,parameters), k, weights, optionsCount,delta);
+=======
+                    learnKohonen(learner.getVector(bmp), k, weights, optionsCount,delta);
+>>>>>>> 51e106b4b3b1545042429de44864ee942ffb715b
                 }
                 if (deltaAtTheEnd >= 1)
                     deltaAtTheEnd = 0.99;
@@ -101,7 +109,11 @@ namespace LinearBinaryPattern
             return weights;
         }
 
+<<<<<<< HEAD
         public double[][] learnAllAverage(int learningCount, BackgroundWorker bw, Object parameters)
+=======
+        public double[][] learnAllAverage(int learningCount, BackgroundWorker bw)
+>>>>>>> 51e106b4b3b1545042429de44864ee942ffb715b
         {
             int optionsCount = learner.optionsCount;
             int vectorLength = learner.vectorLength;
@@ -198,7 +210,11 @@ namespace LinearBinaryPattern
             File.Move(currenPath + ".txt", currenPath + sum + ".txt");
         }
 
+<<<<<<< HEAD
         public void AutoTest(BackgroundWorker bw, string path, List<Object> parameters)
+=======
+        public void AutoTest(BackgroundWorker bw, string path)
+>>>>>>> 51e106b4b3b1545042429de44864ee942ffb715b
         {
             string currenPath;
             bool linearDelta = false;
@@ -212,16 +228,26 @@ namespace LinearBinaryPattern
                     else
                         deltaFunc = " nonLinearDelta ";
                     currenPath = path + "kohonen" + deltaFunc + deltaAtTheEnd.ToString();
+<<<<<<< HEAD
                     learner.learnAllKohonen(100, bw, false, deltaAtTheEnd,parameters[0]);
+=======
+                    learner.learnAllKohonen(100, bw, false, deltaAtTheEnd);
+>>>>>>> 51e106b4b3b1545042429de44864ee942ffb715b
                     learner.saveWeights(currenPath + ".txt");                    
                     saveGuess(learner.guessAll(100, bw),currenPath);
                 }
                 linearDelta = true;
             }
             currenPath = path + "average ";
+<<<<<<< HEAD
             learner.learnAllAverage(100, bw, parameters[0]);
             learner.saveWeights(currenPath + ".txt");
             saveGuess(learner.guessAll(100, bw), currenPath);            
+=======
+            learner.learnAllAverage(100, bw);
+            learner.saveWeights(currenPath + ".txt");
+            saveGuess(learner.guessAll(100, bw), currenPath);
+>>>>>>> 51e106b4b3b1545042429de44864ee942ffb715b
         }
     }
 }

@@ -655,7 +655,11 @@ namespace LinearBinaryPattern
         {
             /*BackgroundWorker bw = sender as BackgroundWorker;
             int arg = (int)e.Argument;
+<<<<<<< HEAD
             learner.learnAllKohonen(arg,bw,true,0);*/
+=======
+            learner.learnAllKohonen(arg,bw,true,0);
+>>>>>>> 51e106b4b3b1545042429de44864ee942ffb715b
         }
 
         private void bg_test_work(object sender, DoWorkEventArgs e)
