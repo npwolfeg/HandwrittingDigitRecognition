@@ -12,19 +12,32 @@ namespace LinearBinaryPattern
     class LearningProcedures
     {
         string path = @"F:\DigitDB\PictureSaver\";        
-        //public double delta = 1;
-        //int optionsCount;
-        //int vectorLength;
+        public double delta = 1;
+        int optionsCount;
+        int vectorLength;
+        double[][] weights;
         CenterLearning learner;        
 
         public LearningProcedures(CenterLearning learner)
         {
             this.learner = learner;
-            //optionsCount = learner.optionsCount;
-            //vectorLength = learner.vectorLength;
+            optionsCount = learner.optionsCount;
+            vectorLength = learner.vectorLength;
+            initializeWeights();
         }
 
-        static public List<double> guess(double[] vector, int optionsCount, double[][]weights)
+        private void initializeWeights()
+        {
+            weights = new double[optionsCount][];
+            for (int n = 0; n < optionsCount; n++)
+            {
+                weights[n] = new double[vectorLength];
+                for (int i = 0; i < vectorLength; i++)
+                    weights[n][i] = 0;
+            }
+        }
+
+        static public List<double> guess(double[] vector, int optionsCount, double[][]weights )
         {
             List<double> dist = new List<double>();
             for (int n = 0; n < optionsCount; n++)
@@ -33,40 +46,33 @@ namespace LinearBinaryPattern
             return dist;
         }
 
-        public double[][] learnKohonen(double[] vector, int n, double[][] weights, int optionsCount, double delta)
+        public void learnKohonen(double[] vector, int n)
         {
             List<double> arr = guess(vector,optionsCount,weights);
             int id = arr.IndexOf(arr.Min());
             if (n != id)
-                for (int i = 0; i < vector.Length; i++)
+                for (int i = 0; i < vectorLength; i++)
                 {
                     weights[n][i] += delta * (vector[i] - weights[n][i]);
                     weights[id][i] += delta * (weights[n][i] - vector[i]);
                 }
 
             else
-                for (int i = 0; i < vector.Length; i++)
+                for (int i = 0; i < vectorLength; i++)
                     weights[n][i] += delta * (vector[i] - weights[n][i]);
-            return weights;
         }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
         public double[][] learnAll(int learningCount, BackgroundWorker bw, bool linearDelta, double deltaAtTheEnd, Object parameters)
 =======
         public double[][] learnAll(int learningCount, BackgroundWorker bw, bool linearDelta, double deltaAtTheEnd)
 >>>>>>> 51e106b4b3b1545042429de44864ee942ffb715b
+=======
+        public double[][] learnAll(int learningCount, BackgroundWorker bw)
+>>>>>>> parent of 5d55f38... autotest
         {
-            double delta = 1;
-            int optionsCount = learner.optionsCount;
-            int vectorLength = learner.vectorLength;
-            double[][] weights;
-            weights = new double[optionsCount][];
-            for (int n = 0; n < optionsCount; n++)
-            {
-                weights[n] = new double[vectorLength];
-                for (int i = 0; i < vectorLength; i++)
-                    weights[n][i] = 0;
-            }
+            initializeWeights();
             int progress, maxProgress;
             int[] count = new int[optionsCount];
             Bitmap bmp;
@@ -86,6 +92,7 @@ namespace LinearBinaryPattern
                     bmp = new Bitmap(path + k.ToString() + n.ToString() + ".bmp");
                     bmp = BmpProcesser.FromAlphaToRGB(bmp);
                     bmp = BmpProcesser.normalizeBitmapRChannel(bmp, 100, 100);
+<<<<<<< HEAD
 <<<<<<< HEAD
                     learnKohonen(learner.getVector(bmp,parameters), k, weights, optionsCount,delta);
 =======
@@ -104,28 +111,26 @@ namespace LinearBinaryPattern
                         deltaAtTheEnd = 0.01;
                     double a = deltaAtTheEnd / (1 - deltaAtTheEnd);
                     delta = a * learningCount / ((double)progress + a * learningCount);
+=======
+                    learnKohonen(learner.getVector(bmp), k);
+>>>>>>> parent of 5d55f38... autotest
                 }
+                delta = -(double)progress / (1 * maxProgress) + 1;
             }
             return weights;
         }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         public double[][] learnAllAverage(int learningCount, BackgroundWorker bw, Object parameters)
 =======
         public double[][] learnAllAverage(int learningCount, BackgroundWorker bw)
 >>>>>>> 51e106b4b3b1545042429de44864ee942ffb715b
+=======
+        public void learnAllAverage(int learningCount)
+>>>>>>> parent of 5d55f38... autotest
         {
-            int optionsCount = learner.optionsCount;
-            int vectorLength = learner.vectorLength;
-            double[][] weights;
-            weights = new double[optionsCount][];
-            for (int n = 0; n < optionsCount; n++)
-            {
-                weights[n] = new double[vectorLength];
-                for (int i = 0; i < vectorLength; i++)
-                    weights[n][i] = 0;
-            }
-
+            initializeWeights();
             int progress, maxProgress;
             double[] vector1 = new double[vectorLength];            
             int[] count = new int[optionsCount];
@@ -142,11 +147,10 @@ namespace LinearBinaryPattern
                 for (int k = 0; k < optionsCount; k++)
                 {
                     progress++;
-                    bw.ReportProgress((int)((float)progress / maxProgress * 100));
                     bmp = new Bitmap(path + k.ToString() + n.ToString() + ".bmp");
                     bmp = BmpProcesser.FromAlphaToRGB(bmp);
                     bmp = BmpProcesser.normalizeBitmapRChannel(bmp, 100, 100);
-                    vector1 = learner.getVector(bmp, parameters);
+                    vector1 = learner.getVector(bmp);
                     for (int i = 0; i < vectorLength; i++)
                         weights[k][i] += vector1[i];
                 }
@@ -154,13 +158,10 @@ namespace LinearBinaryPattern
             for (int k = 0; k < optionsCount; k++)
                 for (int i = 0; i < vectorLength; i++)
                     weights[k][i] = weights[k][i] / learningCount;
-            return weights;
         }
 
         public int[,] guessAll(int guessingCount, BackgroundWorker bw)
         {
-            int optionsCount = learner.optionsCount;
-            int vectorLength = learner.vectorLength;
             int progress, maxProgress;            
             progress = 0;
             maxProgress = guessingCount * optionsCount;
@@ -193,6 +194,7 @@ namespace LinearBinaryPattern
             }
             return result;
         }
+<<<<<<< HEAD
 
         private void saveGuess(int[,] rightNwrong, string currenPath)
         {
@@ -249,5 +251,7 @@ namespace LinearBinaryPattern
             saveGuess(learner.guessAll(100, bw), currenPath);
 >>>>>>> 51e106b4b3b1545042429de44864ee942ffb715b
         }
+=======
+>>>>>>> parent of 5d55f38... autotest
     }
 }

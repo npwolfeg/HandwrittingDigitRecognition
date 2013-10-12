@@ -22,6 +22,7 @@ namespace LinearBinaryPattern
         public int vectorLength;
         public double[][] weights;
 <<<<<<< HEAD
+<<<<<<< HEAD
 
         public struct Parameters
         {
@@ -30,18 +31,20 @@ namespace LinearBinaryPattern
         }
 =======
 >>>>>>> 51e106b4b3b1545042429de44864ee942ffb715b
+=======
+        public string parameters;
+>>>>>>> parent of 5d55f38... autotest
 
         public CenterLearning()
         {
-            initialize(16,16);
+            initialize();
         }
 
-        private void initialize(int blockCols, int blockRows)
+        private void initialize()
         {
-            this.blockCols = blockCols;
-            this.blockRows = blockRows;
             weights = new double[optionsCount][];
             vectorLength = 2 * blockRows * blockCols;
+            parameters = blockCols.ToString() + 'x' + blockRows.ToString();
             blockWidth = picWidth / blockCols;
             blockHeight = picHeight / blockRows;
             for (int n = 0; n < optionsCount; n++)
@@ -62,7 +65,7 @@ namespace LinearBinaryPattern
                     for (int i = 0; i < vectorLength; i++)
                         sw.WriteLine(weights[n][i].ToString());
             }
-        }        
+        }
         
         public void saveWeights()
         {
@@ -77,7 +80,9 @@ namespace LinearBinaryPattern
         {
             using (StreamReader sw = new StreamReader(path))
             {
-                initialize(Convert.ToInt32(sw.ReadLine()), Convert.ToInt32(sw.ReadLine()));
+                blockCols = Convert.ToInt32(sw.ReadLine());
+                blockRows = Convert.ToInt32(sw.ReadLine());
+                initialize();
                 for (int n = 0; n < optionsCount; n++)
                     for (int i = 0; i < vectorLength; i++)
                     weights[n][i] = Convert.ToDouble(sw.ReadLine());
@@ -85,12 +90,18 @@ namespace LinearBinaryPattern
         }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         public void learnAllKohonen(int learningCount, BackgroundWorker bw, bool linearDelta, double deltaAtTheEnd, Object parameters)
+=======
+        public void loadWeights(bool useKohonen, int learningCount, BackgroundWorker bw)
+>>>>>>> parent of 5d55f38... autotest
         {
             LearningProcedures l = new LearningProcedures(this);
-                weights = l.learnAll(learningCount, bw, linearDelta, deltaAtTheEnd, parameters);
+            if (useKohonen)
+                weights = l.learnAll(learningCount, bw);
         }
 
+<<<<<<< HEAD
         public void learnAllAverage(int learningCount, BackgroundWorker bw, Object parameters)
         {
             LearningProcedures l = new LearningProcedures(this);
@@ -108,12 +119,15 @@ namespace LinearBinaryPattern
             weights = l.learnAllAverage(learningCount, bw);
 >>>>>>> 51e106b4b3b1545042429de44864ee942ffb715b
         }
+=======
+>>>>>>> parent of 5d55f38... autotest
         public int[,] guessAll(int guessingCount , BackgroundWorker bw)
         {
             LearningProcedures l = new LearningProcedures(this);
             return l.guessAll(guessingCount, bw);
         }
 
+<<<<<<< HEAD
         public void AutoTest(BackgroundWorker bw)
         {
             string path = @"F:\C#\HandwrittingDigitRecognition\LinearBinaryPattern\bin\Debug\weights\Center\auto\";
@@ -130,6 +144,8 @@ namespace LinearBinaryPattern
 >>>>>>> 51e106b4b3b1545042429de44864ee942ffb715b
         }
 
+=======
+>>>>>>> parent of 5d55f38... autotest
         public void loadWeights()
         {
             OpenFileDialog of = new OpenFileDialog();
@@ -185,10 +201,8 @@ namespace LinearBinaryPattern
             return result;
         }
 
-        public double[] getVector(Bitmap bmp, Object objPram)
+        public double[] getVector(Bitmap bmp)
         {
-            Parameters param = (Parameters)objPram;
-            initialize(param.blockCols, param.blockRows);
             double[] result = new double[vectorLength];
             Rectangle copyRect;
             int counter = 0;
@@ -208,10 +222,7 @@ namespace LinearBinaryPattern
 
         public List<double> guess(Bitmap bmp)
         {
-            Parameters param;
-            param.blockCols = blockCols;
-            param.blockRows = blockRows;
-            return LearningProcedures.guess(getVector(bmp,param),optionsCount,weights);
+            return LearningProcedures.guess(getVector(bmp),optionsCount,weights);
         } 
     }
 }

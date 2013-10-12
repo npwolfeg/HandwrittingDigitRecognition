@@ -551,7 +551,7 @@ namespace LinearBinaryPattern
 
         private void button16_Click(object sender, EventArgs e)
         {
-            learner.loadWeights(@"weights\Center\new format\kohonenNoLiearDeltaTo20Double =967 .txt");
+            learner.loadWeights(@"weights\Center\center10х10average = 891.txt");
             
             drawingBitmap = BmpProcesser.FromAlphaToRGB(drawingBitmap);
             drawingBitmap = BmpProcesser.normalizeBitmapRChannel(drawingBitmap, 100, 100);
@@ -600,11 +600,11 @@ namespace LinearBinaryPattern
                         drawingBitmap = BmpProcesser.normalizeBitmapRChannel(drawingBitmap, bmp.Width, bmp.Height);
                         drawingBitmap = BmpProcesser.ResizeBitmap(drawingBitmap, 100, 100);
 
-                        learner.loadWeights(@"weights\Center\new format\average16x16 = 963.txt");
+                        learner.loadWeights(@"weights\Center\center10х10If(n==id) = 484.txt");
                         List<double> dist = learner.guess(drawingBitmap);
                         possibleDigits.Add(dist.IndexOf(dist.Min()));
 
-                        learner.loadWeights(@"weights\Center\new format\kohonenNoLiearDeltaTo20Double =967 .txt");
+                        learner.loadWeights(@"weights\Center\center10х10average = 891.txt");
                         dist = learner.guess(drawingBitmap);
                         possibleDigits.Add(dist.IndexOf(dist.Min()));
 
@@ -653,6 +653,7 @@ namespace LinearBinaryPattern
 
         private void bg_learnAll_work(object sender, DoWorkEventArgs e)
         {
+<<<<<<< HEAD
             /*BackgroundWorker bw = sender as BackgroundWorker;
             int arg = (int)e.Argument;
 <<<<<<< HEAD
@@ -664,13 +665,11 @@ namespace LinearBinaryPattern
 
         private void bg_test_work(object sender, DoWorkEventArgs e)
         {
+=======
+>>>>>>> parent of 5d55f38... autotest
             BackgroundWorker bw = sender as BackgroundWorker;
-            learner.AutoTest(bw);
-        }
-
-        private void bg_test_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-        {
-            MessageBox.Show("Done!");
+            int arg = (int)e.Argument;
+            learner.loadWeights(true, arg,bw);
         }
 
         private void button19_Click(object sender, EventArgs e)
@@ -714,18 +713,6 @@ namespace LinearBinaryPattern
         private void bg_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             progressBar1.Value = e.ProgressPercentage;
-        }
-
-        private void button15_Click(object sender, EventArgs e)
-        {
-            BackgroundWorker bw = new BackgroundWorker();
-            bw.DoWork += new DoWorkEventHandler(bg_test_work);
-            bw.RunWorkerCompleted += new RunWorkerCompletedEventHandler(bg_test_RunWorkerCompleted);
-            bw.ProgressChanged += new ProgressChangedEventHandler(bg_ProgressChanged);
-            bw.WorkerReportsProgress = true;
-            progressBar1.Value = 0;
-            progressBar1.Maximum = 100;
-            bw.RunWorkerAsync(count);
         }
     }
 
