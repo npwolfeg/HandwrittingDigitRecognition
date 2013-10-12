@@ -195,6 +195,7 @@ namespace LinearBinaryPattern
                 }
                 sw.WriteLine(sum);
             }
+            File.Delete(currenPath + sum + ".txt");
             File.Move(currenPath + ".txt", currenPath + sum + ".txt");
         }
 

@@ -43,6 +43,7 @@ namespace LinearBinaryPattern
 
         public void saveWeights(string path)
         {
+            File.Delete(path);
             using (StreamWriter sw = new StreamWriter(path))
             {
                 sw.WriteLine(blockCols.ToString());
