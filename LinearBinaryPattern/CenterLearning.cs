@@ -21,18 +21,24 @@ namespace LinearBinaryPattern
         public int optionsCount = 10;
         public int vectorLength;
         public double[][] weights;
-        public string parameters;
+
+        public struct Parameters
+        {
+            public int blockCols;
+            public int blockRows;
+        }
 
         public CenterLearning()
         {
-            initialize();
+            initialize(16,16);
         }
 
-        private void initialize()
+        private void initialize(int blockCols, int blockRows)
         {
+            this.blockCols = blockCols;
+            this.blockRows = blockRows;
             weights = new double[optionsCount][];
             vectorLength = 2 * blockRows * blockCols;
-            parameters = blockCols.ToString() + 'x' + blockRows.ToString();
             blockWidth = picWidth / blockCols;
             blockHeight = picHeight / blockRows;
             for (int n = 0; n < optionsCount; n++)
@@ -53,7 +59,7 @@ namespace LinearBinaryPattern
                     for (int i = 0; i < vectorLength; i++)
                         sw.WriteLine(weights[n][i].ToString());
             }
-        }
+        }        
         
         public void saveWeights()
         {
@@ -68,26 +74,40 @@ namespace LinearBinaryPattern
         {
             using (StreamReader sw = new StreamReader(path))
             {
-                blockCols = Convert.ToInt32(sw.ReadLine());
-                blockRows = Convert.ToInt32(sw.ReadLine());
-                initialize();
+                initialize(Convert.ToInt32(sw.ReadLine()), Convert.ToInt32(sw.ReadLine()));
                 for (int n = 0; n < optionsCount; n++)
                     for (int i = 0; i < vectorLength; i++)
                     weights[n][i] = Convert.ToDouble(sw.ReadLine());
             }
         }
 
-        public void loadWeights(bool useKohonen, int learningCount, BackgroundWorker bw)
+        public void learnAllKohonen(int learningCount, BackgroundWorker bw, bool linearDelta, double deltaAtTheEnd, Object parameters)
         {
             LearningProcedures l = new LearningProcedures(this);
-            if (useKohonen)
-                weights = l.learnAll(learningCount, bw);
+                weights = l.learnAll(learningCount, bw, linearDelta, deltaAtTheEnd, parameters);
         }
 
+        public void learnAllAverage(int learningCount, BackgroundWorker bw, Object parameters)
+        {
+            LearningProcedures l = new LearningProcedures(this);
+            weights = l.learnAllAverage(learningCount, bw, parameters);
+        }
         public int[,] guessAll(int guessingCount , BackgroundWorker bw)
         {
             LearningProcedures l = new LearningProcedures(this);
             return l.guessAll(guessingCount, bw);
+        }
+
+        public void AutoTest(BackgroundWorker bw)
+        {
+            string path = @"F:\C#\HandwrittingDigitRecognition\LinearBinaryPattern\bin\Debug\weights\Center\auto\";
+            LearningProcedures l = new LearningProcedures(this);
+            List<Object> paramList = new List<Object>();
+            Parameters param;
+            param.blockCols = 10;
+            param.blockRows = 10;
+            paramList.Add(param);
+            l.AutoTest(bw, path,paramList);
         }
 
         public void loadWeights()
@@ -145,8 +165,10 @@ namespace LinearBinaryPattern
             return result;
         }
 
-        public double[] getVector(Bitmap bmp)
+        public double[] getVector(Bitmap bmp, Object objPram)
         {
+            Parameters param = (Parameters)objPram;
+            initialize(param.blockCols, param.blockRows);
             double[] result = new double[vectorLength];
             Rectangle copyRect;
             int counter = 0;
@@ -166,7 +188,10 @@ namespace LinearBinaryPattern
 
         public List<double> guess(Bitmap bmp)
         {
-            return LearningProcedures.guess(getVector(bmp),optionsCount,weights);
+            Parameters param;
+            param.blockCols = blockCols;
+            param.blockRows = blockRows;
+            return LearningProcedures.guess(getVector(bmp,param),optionsCount,weights);
         } 
     }
 }
